@@ -1,4 +1,7 @@
 import { Pause, Play } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
+const TEMPO_PRESETS = [60, 72, 84, 96, 108, 120]
 
 type MetronomeControlsProps = {
   enabled: boolean
@@ -17,6 +20,12 @@ export function MetronomeControls({
   onBpmChange,
   onVolumeChange,
 }: MetronomeControlsProps) {
+  const [bpmInput, setBpmInput] = useState(() => String(Math.round(bpm)))
+
+  useEffect(() => {
+    setBpmInput(String(Math.round(bpm)))
+  }, [bpm])
+
   let powerButtonClass =
     'mx-auto flex h-20 w-20 items-center justify-center rounded-full border text-white shadow-sm transition'
   let ToneIcon = Play
@@ -44,7 +53,35 @@ export function MetronomeControls({
       <div className="rounded-xl border border-white/10 bg-white/5 p-3">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="text-white/70">Tempo</span>
-          <span className="tabular-nums text-white/85">{Math.round(bpm)} BPM</span>
+          <div className="flex items-center gap-2 text-white/85">
+            <input
+              type="number"
+              min={30}
+              max={220}
+              step={1}
+              inputMode="numeric"
+              value={bpmInput}
+              onChange={(event) => {
+                const nextValue = event.target.value
+                setBpmInput(nextValue)
+                const parsed = Number(nextValue)
+                if (Number.isFinite(parsed)) {
+                  onBpmChange(parsed)
+                }
+              }}
+              onBlur={() => {
+                const parsed = Number(bpmInput)
+                if (!Number.isFinite(parsed)) {
+                  setBpmInput(String(Math.round(bpm)))
+                  return
+                }
+                onBpmChange(parsed)
+              }}
+              className="w-16 rounded-md border border-white/15 bg-white/10 px-2 py-1 text-right tabular-nums text-sm text-white/90 outline-none transition focus:border-fuchsia-300/60"
+              aria-label="Tempo BPM"
+            />
+            <span>BPM</span>
+          </div>
         </div>
         <input
           type="range"
@@ -55,6 +92,35 @@ export function MetronomeControls({
           onChange={(event) => onBpmChange(Number(event.target.value))}
           className="h-2 w-full accent-fuchsia-300"
         />
+        <div className="mt-3 flex flex-wrap gap-2">
+          {TEMPO_PRESETS.map((presetBpm) => {
+            const isActive = Math.round(bpm) === presetBpm
+            let presetClassName =
+              'rounded-md border px-2 py-1 text-xs tabular-nums transition'
+            if (isActive) {
+              presetClassName +=
+                ' border-fuchsia-300/70 bg-fuchsia-300/25 text-fuchsia-50 shadow-[0_0_0_1px_rgba(245,158,255,0.25)]'
+            }
+            if (!isActive) {
+              presetClassName +=
+                ' border-white/15 bg-white/10 text-white/80 hover:border-white/25 hover:bg-white/15'
+            }
+            return (
+              <button
+                key={presetBpm}
+                type="button"
+                className={presetClassName}
+                onClick={() => {
+                  setBpmInput(String(presetBpm))
+                  onBpmChange(presetBpm)
+                }}
+                aria-label={`Set tempo to ${presetBpm} BPM`}
+              >
+                {presetBpm}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <div className="rounded-xl border border-white/10 bg-white/5 p-3">
