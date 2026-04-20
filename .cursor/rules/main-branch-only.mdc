@@ -1,0 +1,13 @@
+---
+description: Work only on main and pull at session start
+alwaysApply: true
+---
+
+# Main branch workflow
+
+- Always do all work on `main` in this repository.
+- Never create, switch to, or commit on feature/topic branches unless the user explicitly overrides this rule.
+- At the start of each new session, before any code changes:
+  - run `git checkout main`
+  - run `git pull --ff-only origin main`
+- Before committing or pushing, verify the current branch is still `main`.

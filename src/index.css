@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.35;
+  font-weight: 500;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  -webkit-user-select: none;
+  user-select: none;
+  background:
+    radial-gradient(1200px 600px at 75% 20%, rgba(206, 126, 252, 0.24), transparent),
+    radial-gradient(1000px 500px at 20% 80%, rgba(87, 86, 196, 0.18), transparent),
+    #111019;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.tabular-nums {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
