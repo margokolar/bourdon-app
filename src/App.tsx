@@ -312,6 +312,15 @@ function App() {
     }
 
     const onUserGesture = (event: Event) => {
+      const target = event.target as HTMLElement | null
+      const isTextEntryTarget =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target?.isContentEditable
+      if (isTextEntryTarget) {
+        return
+      }
       if (event instanceof KeyboardEvent) {
         const key = event.key || event.code
         if (key.startsWith('Media')) {
