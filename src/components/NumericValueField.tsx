@@ -60,6 +60,11 @@ export function NumericValueField({
     }
   }, [decimals, open, value])
 
+  const openEditor = () => {
+    setDraft(formatValue(value, decimals))
+    setOpen(true)
+  }
+
   const commitValue = (rawValue: string) => {
     const parsed = Number(rawValue)
     if (!Number.isFinite(parsed)) {
@@ -130,9 +135,10 @@ export function NumericValueField({
         type="button"
         className={`${className} cursor-pointer`}
         aria-label={ariaLabel}
-        onClick={() => {
-          setDraft(formatValue(value, decimals))
-          setOpen(true)
+        onClick={openEditor}
+        onTouchEnd={(event) => {
+          event.preventDefault()
+          openEditor()
         }}
       >
         {formatValue(value, decimals)}
