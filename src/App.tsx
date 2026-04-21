@@ -1,5 +1,6 @@
 import { Info, Menu, Pause, Play, Save, Upload, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { droneEngine } from './audio/DroneEngine'
 import type { DroneRuntimeConfig } from './audio/types'
 import { MetronomeControls } from './components/MetronomeControls'
 import { NoteSelector } from './components/NoteSelector'
@@ -87,6 +88,17 @@ function App() {
     }
   }, [])
 
+  const handleTogglePlay = useCallback(() => {
+    const currentlyPlaying = useDroneStore.getState().playing
+    if (!currentlyPlaying) {
+      // Must run synchronously inside the user-gesture call stack so Safari
+      // honours AudioContext.resume().
+      droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+      void resumeMediaAnchor()
+    }
+    togglePlaying()
+  }, [resumeMediaAnchor, togglePlaying])
+
   const activeTones = useMemo(() => tones.filter((tone) => tone.enabled), [tones])
   const runtimeConfig = useMemo<DroneRuntimeConfig>(
     () => ({
@@ -101,6 +113,11 @@ function App() {
     }),
     [referenceA4Hz, baseOctave, tuningSystemId, tonalCenter, masterGainDb, timbreBlend, tones, partials],
   )
+
+  const latestRuntimeConfigRef = useRef<DroneRuntimeConfig>(runtimeConfig)
+  useEffect(() => {
+    latestRuntimeConfigRef.current = runtimeConfig
+  }, [runtimeConfig])
 
   useAudioEngine(runtimeConfig, playing)
   useMetronome({
@@ -168,6 +185,10 @@ function App() {
 
       if (isTurnDownKey) {
         event.preventDefault()
+        const wasPlaying = useDroneStore.getState().playing
+        if (!wasPlaying) {
+          droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+        }
         void resumeMediaAnchor()
         togglePlaying()
         return
@@ -205,17 +226,26 @@ function App() {
       }
       if (event.code === 'Space' || event.key === ' ') {
         event.preventDefault()
+        const wasPlaying = useDroneStore.getState().playing
+        if (!wasPlaying) {
+          droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+        }
         togglePlaying()
         return
       }
       if (mediaKey === 'MediaPlayPause') {
         event.preventDefault()
+        const wasPlaying = useDroneStore.getState().playing
+        if (!wasPlaying) {
+          droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+        }
         void resumeMediaAnchor()
         togglePlaying()
         return
       }
       if (mediaKey === 'MediaPlay') {
         event.preventDefault()
+        droneEngine.ensureRunning(latestRuntimeConfigRef.current)
         void resumeMediaAnchor()
         setPlaying(true)
         return
@@ -363,13 +393,28 @@ function App() {
       artist: 'Drone reference',
       album: 'Bourdon App',
     })
-    navigator.mediaSession.playbackState = playing ? 'playing' : 'paused'
+
     setActionHandler('play', () => {
+      // iOS Safari only keeps the user-gesture window alive for the synchronous
+      // body of this handler. Any `await` before AudioContext.resume() loses
+      // it, which is why the play action used to appear dead from a Bluetooth
+      // controller while pause kept working.
+      droneEngine.ensureRunning(latestRuntimeConfigRef.current)
       void resumeMediaAnchor()
       useDroneStore.getState().setPlaying(true)
+      try {
+        navigator.mediaSession.playbackState = 'playing'
+      } catch {
+        // Safari occasionally throws when called before metadata settles.
+      }
     })
     setActionHandler('pause', () => {
       useDroneStore.getState().setPlaying(false)
+      try {
+        navigator.mediaSession.playbackState = 'paused'
+      } catch {
+        // Ignore; the next render will update playbackState anyway.
+      }
     })
     setActionHandler('stop', () => {
       useDroneStore.getState().setPlaying(false)
@@ -398,7 +443,18 @@ function App() {
       setActionHandler('seekforward', null)
       setActionHandler('seekbackward', null)
     }
-  }, [playing, resumeMediaAnchor, setPlaying])
+  }, [resumeMediaAnchor])
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) {
+      return
+    }
+    try {
+      navigator.mediaSession.playbackState = playing ? 'playing' : 'paused'
+    } catch {
+      // Ignore browsers that reject the write.
+    }
+  }, [playing])
 
   const menuLabel = menuOpen ? 'Close menu' : 'Open menu'
   const audioMenuActionLabel = playing ? 'Pause audio' : 'Play audio'
@@ -451,7 +507,7 @@ function App() {
                   tuningSystemId={tuningSystemId}
                   tonalCenter={tonalCenter}
                   masterGainDb={masterGainDb}
-                  onTogglePlay={togglePlaying}
+                  onTogglePlay={handleTogglePlay}
                   onNextPreset={selectNextPreset}
                   onPreviousPreset={selectPreviousPreset}
                   onReferenceNudge={nudgeReferenceA4Hz}
@@ -573,7 +629,7 @@ function App() {
                 type="button"
                 className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
                 onClick={() => {
-                  togglePlaying()
+                  handleTogglePlay()
                   setMenuOpen(false)
                 }}
               >

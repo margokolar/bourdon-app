@@ -1,51 +1,39 @@
 import { useEffect, useRef } from 'react'
-import { DroneEngine } from '../audio/DroneEngine'
+import { droneEngine } from '../audio/DroneEngine'
 import type { DroneRuntimeConfig } from '../audio/types'
 
 export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): void {
-  const engineRef = useRef<DroneEngine | null>(null)
   const latestConfigRef = useRef<DroneRuntimeConfig>(config)
 
   useEffect(() => {
-    if (!engineRef.current) {
-      engineRef.current = new DroneEngine()
-      if (playing) {
-        void engineRef.current.start(latestConfigRef.current)
-      }
-    }
-  }, [playing])
-
-  useEffect(() => {
     latestConfigRef.current = config
-    if (!engineRef.current || !playing) {
+    if (!playing) {
       return
     }
-    engineRef.current.syncConfig(config, false)
+    droneEngine.syncConfig(config, false)
   }, [config, playing])
 
   useEffect(() => {
-    if (!engineRef.current) {
+    if (playing) {
+      void droneEngine.start(latestConfigRef.current)
       return
     }
-    const engine = engineRef.current
-    if (playing) {
-      void engine.start(latestConfigRef.current)
-    }
-    if (!playing) {
-      engine.stop()
-    }
+    droneEngine.stop()
   }, [playing])
 
   useEffect(() => {
-    if (!playing || !engineRef.current) {
+    if (!playing) {
       return
     }
 
     const retryStart = () => {
-      if (!engineRef.current || !playing) {
+      if (!playing) {
         return
       }
-      void engineRef.current.start(latestConfigRef.current)
+      void droneEngine.start(latestConfigRef.current)
+      if (!droneEngine.isContextRunning()) {
+        void droneEngine.kickContext()
+      }
     }
 
     const onVisibilityChange = () => {
@@ -61,13 +49,4 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [playing])
-
-  useEffect(
-    () => () => {
-      if (engineRef.current) {
-        engineRef.current.destroy()
-      }
-    },
-    [],
-  )
 }

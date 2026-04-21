@@ -53,12 +53,56 @@ export class DroneEngine {
   }
 
   async start(config: DroneRuntimeConfig): Promise<void> {
+    this.ensureRunning(config)
+    const context = this.context
+    if (context && context.state !== 'running') {
+      try {
+        await context.resume()
+      } catch {
+        // Safari occasionally rejects resume outside a gesture; ensureRunning already
+        // fired a synchronous resume() so we simply swallow the async echo.
+      }
+    }
+  }
+
+  /**
+   * Synchronous entry point used from user-gesture handlers (touch, click,
+   * MediaSession actions). iOS Safari only honours AudioContext.resume() when it
+   * is invoked within the same microtask as the user gesture, so we must not
+   * `await` anything before calling it.
+   */
+  ensureRunning(config: DroneRuntimeConfig): void {
     const context = this.ensureContext()
     if (context.state !== 'running') {
-      await context.resume()
+      void context.resume().catch(() => {
+        // iOS can reject resume() while the page is still warming up; the
+        // caller may retry on the next user gesture.
+      })
     }
     this.started = true
     this.syncConfig(config, true)
+  }
+
+  /**
+   * Force a suspend/resume cycle. Fixes the documented WebKit bug where the
+   * AudioContext reports "running" but the hardware clock is stalled after the
+   * PWA returns from background (bugs.webkit.org/show_bug.cgi?id=263627).
+   */
+  async kickContext(): Promise<void> {
+    const context = this.context
+    if (!context) {
+      return
+    }
+    try {
+      await context.suspend()
+      await context.resume()
+    } catch {
+      // Nothing actionable; the caller can decide whether to retry.
+    }
+  }
+
+  isContextRunning(): boolean {
+    return this.context?.state === 'running'
   }
 
   stop(): void {
@@ -298,3 +342,11 @@ export class DroneEngine {
     voice.outputGain.disconnect()
   }
 }
+
+/**
+ * Shared singleton so user-gesture callbacks (MediaSession actions, Bluetooth
+ * media keys) can reach the engine synchronously. iOS Safari only honours
+ * AudioContext.resume() when it runs within the same microtask as the gesture,
+ * so routing through React state + an async effect would lose that window.
+ */
+export const droneEngine = new DroneEngine()
