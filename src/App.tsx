@@ -47,7 +47,6 @@ function App() {
 
   const togglePlaying = useDroneStore((state) => state.togglePlaying)
   const setPlaying = useDroneStore((state) => state.setPlaying)
-  const setReferenceA4Hz = useDroneStore((state) => state.setReferenceA4Hz)
   const nudgeReferenceA4Hz = useDroneStore((state) => state.nudgeReferenceA4Hz)
   const nudgeBaseOctave = useDroneStore((state) => state.nudgeBaseOctave)
   const setTuningSystemId = useDroneStore((state) => state.setTuningSystemId)
@@ -515,7 +514,6 @@ function App() {
                   onNextPreset={selectNextPreset}
                   onPreviousPreset={selectPreviousPreset}
                   onReferenceNudge={nudgeReferenceA4Hz}
-                  onReferenceSet={setReferenceA4Hz}
                   onBaseOctaveNudge={nudgeBaseOctave}
                   onTuningSystemChange={setTuningSystemId}
                   onTonalCenterChange={setTonalCenter}

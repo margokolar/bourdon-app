@@ -1,5 +1,4 @@
 import { ChevronDown, Pause, Play, StepBack, StepForward } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { TONAL_CENTERS, type TonalCenter } from '../music/notes'
 import { TUNING_SYSTEMS, type TuningSystemId } from '../music/tuning'
 
@@ -14,7 +13,6 @@ type TopControlsProps = {
   onNextPreset: () => void
   onPreviousPreset: () => void
   onReferenceNudge: (delta: number) => void
-  onReferenceSet: (frequency: number) => void
   onBaseOctaveNudge: (delta: number) => void
   onTuningSystemChange: (value: TuningSystemId) => void
   onTonalCenterChange: (value: TonalCenter) => void
@@ -32,7 +30,6 @@ export function TopControls({
   onNextPreset,
   onPreviousPreset,
   onReferenceNudge,
-  onReferenceSet,
   onBaseOctaveNudge,
   onTuningSystemChange,
   onTonalCenterChange,
@@ -40,11 +37,6 @@ export function TopControls({
 }: TopControlsProps) {
   const modeLabel = playing ? 'Pause' : 'Play'
   const ToneIcon = playing ? Pause : Play
-  const [a4InputValue, setA4InputValue] = useState(() => String(Math.round(referenceA4Hz)))
-
-  useEffect(() => {
-    setA4InputValue(String(Math.round(referenceA4Hz)))
-  }, [referenceA4Hz])
 
   const selectBaseClass =
     'min-h-[56px] w-full appearance-none rounded-xl border border-white/15 bg-white/5 px-3 py-3 pr-10 text-sm leading-tight text-white outline-none transition focus:border-fuchsia-300/60'
@@ -97,40 +89,20 @@ export function TopControls({
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-white/10 bg-white/5 p-3">
           <div className="mb-2 text-xs uppercase tracking-[0.16em] text-white/60">A4 reference</div>
-          <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-1.5">
+          <div className="flex items-center gap-1.5">
             <button
-              className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
+              className="flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
               onClick={() => onReferenceNudge(-1)}
               type="button"
               aria-label="Decrease A4"
             >
               -
             </button>
-            <input
-              type="tel"
-              inputMode="numeric"
-              enterKeyHint="done"
-              value={a4InputValue}
-              onChange={(event) => {
-                const digitsOnly = event.target.value.replace(/[^0-9]/g, '')
-                setA4InputValue(digitsOnly)
-                if (!digitsOnly) {
-                  return
-                }
-                onReferenceSet(Number(digitsOnly))
-              }}
-              onBlur={() => {
-                if (!a4InputValue) {
-                  setA4InputValue(String(Math.round(referenceA4Hz)))
-                  return
-                }
-                onReferenceSet(Number(a4InputValue))
-              }}
-              className="min-w-0 w-full rounded-md border border-white/20 bg-white/5 px-2 py-1 text-center text-base font-semibold tabular-nums text-white outline-none focus:border-fuchsia-300/60"
-              aria-label="A4 reference in hertz"
-            />
+            <div className="flex-1 min-w-0 text-center text-base font-semibold tabular-nums">
+              {referenceA4Hz.toFixed(1)}
+            </div>
             <button
-              className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
+              className="flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
               onClick={() => onReferenceNudge(1)}
               type="button"
               aria-label="Increase A4"
