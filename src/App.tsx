@@ -20,7 +20,7 @@ type TabId = 'tone' | 'overtones' | 'metronome' | 'presets'
 const TABS: { id: TabId; label: string }[] = [
   { id: 'tone', label: 'Tone' },
   { id: 'overtones', label: 'Overtones' },
-  { id: 'metronome', label: 'Metronome' },
+  { id: 'metronome', label: 'Click' },
   { id: 'presets', label: 'Presets' },
 ]
 
@@ -553,7 +553,7 @@ function App() {
             </SectionCard>
           </div>
           <div className="space-y-4" role="tabpanel" id="panel-metronome" aria-labelledby="tab-metronome" hidden={activeTab !== 'metronome'}>
-            <SectionCard title="Metronome">
+            <SectionCard title="Click">
               <MetronomeControls
                 enabled={metronomeEnabled}
                 bpm={metronomeBpm}
