@@ -1,5 +1,5 @@
 import { Pause, Play } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { NumericValueField } from './NumericValueField'
 
 const TEMPO_PRESETS = [60, 72, 84, 96, 108, 120]
 
@@ -20,12 +20,6 @@ export function MetronomeControls({
   onBpmChange,
   onVolumeChange,
 }: MetronomeControlsProps) {
-  const [bpmInput, setBpmInput] = useState(() => String(Math.round(bpm)))
-
-  useEffect(() => {
-    setBpmInput(String(Math.round(bpm)))
-  }, [bpm])
-
   let powerButtonClass =
     'mx-auto flex h-20 w-20 items-center justify-center rounded-full border text-white shadow-sm transition'
   let ToneIcon = Play
@@ -54,28 +48,14 @@ export function MetronomeControls({
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
           <span className="text-white/70">Tempo</span>
           <div className="flex flex-wrap items-center gap-2 text-white/85">
-            <input
-              type="text"
-              inputMode="numeric"
-              value={bpmInput}
-              onChange={(event) => {
-                const nextValue = event.target.value.replace(/[^0-9]/g, '')
-                setBpmInput(nextValue)
-                const parsed = Number(nextValue)
-                if (Number.isFinite(parsed)) {
-                  onBpmChange(parsed)
-                }
-              }}
-              onBlur={() => {
-                const parsed = Number(bpmInput)
-                if (!Number.isFinite(parsed)) {
-                  setBpmInput(String(Math.round(bpm)))
-                  return
-                }
-                onBpmChange(parsed)
-              }}
+            <NumericValueField
+              value={bpm}
+              onCommit={onBpmChange}
+              min={30}
+              max={220}
+              decimals={0}
               className="w-20 max-w-full rounded-md border border-white/15 bg-white/10 px-2 py-1 text-right tabular-nums text-sm text-white/90 outline-none transition focus:border-fuchsia-300/60"
-              aria-label="Tempo BPM"
+              ariaLabel="Tempo BPM"
             />
             <span>BPM</span>
           </div>
@@ -107,10 +87,7 @@ export function MetronomeControls({
                 key={presetBpm}
                 type="button"
                 className={presetClassName}
-                onClick={() => {
-                  setBpmInput(String(presetBpm))
-                  onBpmChange(presetBpm)
-                }}
+                onClick={() => onBpmChange(presetBpm)}
                 aria-label={`Set tempo to ${presetBpm} BPM`}
               >
                 {presetBpm}

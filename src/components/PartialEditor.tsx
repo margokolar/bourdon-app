@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import type { PartialConfig } from '../audio/types'
+import { NumericValueField } from './NumericValueField'
 
 type PartialEditorProps = {
   partials: PartialConfig[]
@@ -15,60 +15,6 @@ type PartialEditorProps = {
   onAddPartial: () => void
   onRemovePartial: (partialId: string) => void
   onSetTimbreValue: (key: 'sine' | 'saw' | 'square', value: number) => void
-}
-
-type NumericTextInputProps = {
-  value: number
-  onCommit: (value: number) => void
-  min: number
-  max: number
-  decimals: number
-  className: string
-  ariaLabel: string
-}
-
-function NumericTextInput({
-  value,
-  onCommit,
-  min,
-  max,
-  decimals,
-  className,
-  ariaLabel,
-}: NumericTextInputProps) {
-  const [draft, setDraft] = useState(() => value.toFixed(decimals))
-
-  useEffect(() => {
-    setDraft(value.toFixed(decimals))
-  }, [decimals, value])
-
-  return (
-    <input
-      type="text"
-      inputMode="decimal"
-      value={draft}
-      onChange={(event) => {
-        const nextValue = event.currentTarget.value.replace(/[^0-9.-]/g, '')
-        setDraft(nextValue)
-        const parsed = Number(nextValue)
-        if (Number.isFinite(parsed)) {
-          onCommit(parsed)
-        }
-      }}
-      onBlur={() => {
-        const parsed = Number(draft)
-        if (!Number.isFinite(parsed)) {
-          setDraft(value.toFixed(decimals))
-          return
-        }
-        const clamped = Math.min(max, Math.max(min, parsed))
-        onCommit(clamped)
-        setDraft(clamped.toFixed(decimals))
-      }}
-      className={className}
-      aria-label={ariaLabel}
-    />
-  )
 }
 
 export function PartialEditor({
@@ -151,7 +97,7 @@ export function PartialEditor({
             <div className="grid grid-cols-[1fr_auto_auto] items-center gap-2 text-sm">
               <span className="text-white/60">Ratio</span>
               <span className="tabular-nums text-white/70">{partial.ratio.toFixed(3)}</span>
-              <NumericTextInput
+              <NumericValueField
                 value={partial.ratio}
                 onCommit={(value) => onSetPartialRatio(partial.id, value)}
                 min={0.125}
@@ -174,7 +120,7 @@ export function PartialEditor({
             <div className="mt-3 grid grid-cols-[1fr_auto_auto] items-center gap-2 text-sm">
               <span className="text-white/60">Gain</span>
               <span className="tabular-nums text-white/70">{partial.gainDb.toFixed(1)} dB</span>
-              <NumericTextInput
+              <NumericValueField
                 value={partial.gainDb}
                 onCommit={(value) => onSetPartialGain(partial.id, value)}
                 min={-48}
