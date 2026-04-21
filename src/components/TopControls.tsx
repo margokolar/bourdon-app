@@ -1,4 +1,5 @@
 import { ChevronDown, Pause, Play, StepBack, StepForward } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { TONAL_CENTERS, type TonalCenter } from '../music/notes'
 import { TUNING_SYSTEMS, type TuningSystemId } from '../music/tuning'
 
@@ -39,6 +40,11 @@ export function TopControls({
 }: TopControlsProps) {
   const modeLabel = playing ? 'Pause' : 'Play'
   const ToneIcon = playing ? Pause : Play
+  const [a4InputValue, setA4InputValue] = useState(() => String(Math.round(referenceA4Hz)))
+
+  useEffect(() => {
+    setA4InputValue(String(Math.round(referenceA4Hz)))
+  }, [referenceA4Hz])
 
   const selectBaseClass =
     'min-h-[56px] w-full appearance-none rounded-xl border border-white/15 bg-white/5 px-3 py-3 pr-10 text-sm leading-tight text-white outline-none transition focus:border-fuchsia-300/60'
@@ -101,13 +107,26 @@ export function TopControls({
               -
             </button>
             <input
-              type="number"
-              min={400}
-              max={480}
-              step={1}
-              value={Math.round(referenceA4Hz)}
-              onChange={(event) => onReferenceSet(Number(event.target.value))}
-              className="flex-1 min-w-0 rounded-md border border-white/20 bg-white/5 px-2 py-1 text-center text-base font-semibold tabular-nums text-white outline-none focus:border-fuchsia-300/60"
+              type="text"
+              inputMode="numeric"
+              enterKeyHint="done"
+              value={a4InputValue}
+              onChange={(event) => {
+                const digitsOnly = event.target.value.replace(/[^0-9]/g, '')
+                setA4InputValue(digitsOnly)
+                if (!digitsOnly) {
+                  return
+                }
+                onReferenceSet(Number(digitsOnly))
+              }}
+              onBlur={() => {
+                if (!a4InputValue) {
+                  setA4InputValue(String(Math.round(referenceA4Hz)))
+                  return
+                }
+                onReferenceSet(Number(a4InputValue))
+              }}
+              className="w-16 shrink-0 rounded-md border border-white/20 bg-white/5 px-2 py-1 text-center text-base font-semibold tabular-nums text-white outline-none focus:border-fuchsia-300/60"
               aria-label="A4 reference in hertz"
             />
             <button
