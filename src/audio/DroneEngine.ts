@@ -20,7 +20,6 @@ const ATTACK_SECONDS = 0.08
 const RELEASE_SECONDS = 0.2
 const PARAM_SMOOTH_SECONDS = 0.05
 const LIMITER_THRESHOLD_DB = -3
-const AUDIO_DEBUG_PREFIX = '[Bourdon][AudioEngine]'
 
 export class DroneEngine {
   private context: AudioContext | null = null
@@ -50,36 +49,16 @@ export class DroneEngine {
     limiter.connect(context.destination)
     this.context = context
     this.masterGain = masterGain
-    console.debug(`${AUDIO_DEBUG_PREFIX} context created`, {
-      state: context.state,
-      sampleRate: context.sampleRate,
-      baseLatency: context.baseLatency,
-      outputLatency: context.outputLatency,
-    })
     return context
   }
 
   async start(config: DroneRuntimeConfig): Promise<void> {
-    console.debug(`${AUDIO_DEBUG_PREFIX} start() called`, {
-      toneCount: config.tones.length,
-      enabledTones: config.tones.filter((tone) => tone.enabled).length,
-      partialCount: config.partials.length,
-      contextState: this.context?.state ?? 'none',
-    })
     this.ensureRunning(config)
     const context = this.context
     if (context && context.state !== 'running') {
       try {
         await context.resume()
-        console.debug(`${AUDIO_DEBUG_PREFIX} async resume() resolved`, {
-          state: context.state,
-          currentTime: context.currentTime,
-        })
       } catch {
-        console.debug(`${AUDIO_DEBUG_PREFIX} async resume() rejected`, {
-          state: context.state,
-          currentTime: context.currentTime,
-        })
         // Safari occasionally rejects resume outside a gesture; ensureRunning already
         // fired a synchronous resume() so we simply swallow the async echo.
       }
@@ -94,26 +73,12 @@ export class DroneEngine {
    */
   ensureRunning(config: DroneRuntimeConfig): void {
     const context = this.ensureContext()
-    console.debug(`${AUDIO_DEBUG_PREFIX} ensureRunning()`, {
-      stateBefore: context.state,
-      currentTimeBefore: context.currentTime,
-    })
     if (context.state !== 'running') {
       void context
         .resume()
-        .then(() => {
-          console.debug(`${AUDIO_DEBUG_PREFIX} sync-path resume() resolved`, {
-            stateAfter: context.state,
-            currentTimeAfter: context.currentTime,
-          })
-        })
         .catch(() => {
-          console.debug(`${AUDIO_DEBUG_PREFIX} sync-path resume() rejected`, {
-            stateAfter: context.state,
-            currentTimeAfter: context.currentTime,
-          })
-        // iOS can reject resume() while the page is still warming up; the
-        // caller may retry on the next user gesture.
+          // iOS can reject resume() while the page is still warming up; the
+          // caller may retry on the next user gesture.
         })
     }
     this.started = true
@@ -131,21 +96,9 @@ export class DroneEngine {
       return
     }
     try {
-      console.debug(`${AUDIO_DEBUG_PREFIX} kickContext() start`, {
-        stateBefore: context.state,
-        currentTimeBefore: context.currentTime,
-      })
       await context.suspend()
       await context.resume()
-      console.debug(`${AUDIO_DEBUG_PREFIX} kickContext() success`, {
-        stateAfter: context.state,
-        currentTimeAfter: context.currentTime,
-      })
     } catch {
-      console.debug(`${AUDIO_DEBUG_PREFIX} kickContext() failed`, {
-        stateAfter: context.state,
-        currentTimeAfter: context.currentTime,
-      })
       // Nothing actionable; the caller can decide whether to retry.
     }
   }
@@ -156,17 +109,8 @@ export class DroneEngine {
 
   stop(): void {
     if (!this.context || !this.masterGain) {
-      console.debug(`${AUDIO_DEBUG_PREFIX} stop() skipped`, {
-        hasContext: Boolean(this.context),
-        hasMasterGain: Boolean(this.masterGain),
-      })
       return
     }
-    console.debug(`${AUDIO_DEBUG_PREFIX} stop() called`, {
-      contextState: this.context.state,
-      voiceCount: this.voiceMap.size,
-      currentTime: this.context.currentTime,
-    })
     const now = this.context.currentTime
     this.masterGain.gain.cancelScheduledValues(now)
     this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now)

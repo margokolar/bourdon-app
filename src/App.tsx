@@ -23,7 +23,6 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'metronome', label: 'Metronome' },
   { id: 'presets', label: 'Presets' },
 ]
-const BT_DEBUG_PREFIX = '[Bourdon][BT]'
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -80,18 +79,10 @@ function App() {
 
   const resumeMediaAnchor = useCallback(async () => {
     const anchorAudio = mediaAnchorAudioRef.current
-    console.debug(`${BT_DEBUG_PREFIX} resumeMediaAnchor()`, {
-      hasAnchor: Boolean(anchorAudio),
-      anchorPaused: anchorAudio?.paused,
-    })
     if (anchorAudio && anchorAudio.paused) {
       try {
         await anchorAudio.play()
-        console.debug(`${BT_DEBUG_PREFIX} anchor play() resolved`, {
-          anchorPaused: anchorAudio.paused,
-        })
       } catch {
-        console.debug(`${BT_DEBUG_PREFIX} anchor play() rejected`)
         // Some browsers can still reject play while backgrounded.
       }
     }
@@ -99,10 +90,6 @@ function App() {
 
   const pauseMediaAnchor = useCallback(() => {
     const anchorAudio = mediaAnchorAudioRef.current
-    console.debug(`${BT_DEBUG_PREFIX} pauseMediaAnchor()`, {
-      hasAnchor: Boolean(anchorAudio),
-      anchorPaused: anchorAudio?.paused,
-    })
     if (!anchorAudio || anchorAudio.paused) {
       return
     }
@@ -111,9 +98,6 @@ function App() {
 
   const handleTogglePlay = useCallback(() => {
     const currentlyPlaying = useDroneStore.getState().playing
-    console.debug(`${BT_DEBUG_PREFIX} handleTogglePlay`, {
-      currentlyPlaying,
-    })
     if (!currentlyPlaying) {
       // Must run synchronously inside the user-gesture call stack so Safari
       // honours AudioContext.resume().
@@ -204,11 +188,6 @@ function App() {
         return
       }
       const mediaKey = event.key || event.code
-      console.debug(`${BT_DEBUG_PREFIX} keydown`, {
-        key: event.key,
-        code: event.code,
-        mediaKey,
-      })
       const isTurnDownKey = TURN_DOWN_KEYS.has(mediaKey)
       const isTurnUpKey = TURN_UP_KEYS.has(mediaKey)
 
@@ -238,21 +217,6 @@ function App() {
         return
       }
 
-      const isMediaOrSpaceKey =
-        mediaKey === 'MediaPlayPause' ||
-        mediaKey === 'MediaPlay' ||
-        mediaKey === 'MediaPause' ||
-        event.code === 'Space' ||
-        event.key === ' '
-      if (isMediaOrSpaceKey) {
-        console.debug('[BT keydown]', {
-          key: event.key,
-          code: event.code,
-          mediaKey,
-          mappedTurnDown: isTurnDownKey,
-          mappedTurnUp: isTurnUpKey,
-        })
-      }
       if (event.code === 'Space' || event.key === ' ') {
         event.preventDefault()
         const wasPlaying = useDroneStore.getState().playing
@@ -335,7 +299,6 @@ function App() {
         return
       }
       mediaAnchorPrimedRef.current = true
-      console.debug(`${BT_DEBUG_PREFIX} primeMediaAnchor() start`)
       try {
         anchorObjectUrl = createSilentWavUrl()
         anchorAudioElement = new Audio(anchorObjectUrl)
@@ -343,9 +306,7 @@ function App() {
         anchorAudioElement.preload = 'auto'
         mediaAnchorAudioRef.current = anchorAudioElement
         await anchorAudioElement.play()
-        console.debug(`${BT_DEBUG_PREFIX} primeMediaAnchor() success`)
       } catch {
-        console.debug(`${BT_DEBUG_PREFIX} primeMediaAnchor() failed`)
         mediaAnchorPrimedRef.current = false
       }
     }
@@ -427,9 +388,6 @@ function App() {
     })
 
     setActionHandler('play', () => {
-      console.debug(`${BT_DEBUG_PREFIX} MediaSession play handler`, {
-        playingBefore: useDroneStore.getState().playing,
-      })
       // iOS Safari only keeps the user-gesture window alive for the synchronous
       // body of this handler. Any `await` before AudioContext.resume() loses
       // it, which is why the play action used to appear dead from a Bluetooth
@@ -439,23 +397,16 @@ function App() {
       useDroneStore.getState().setPlaying(true)
       try {
         navigator.mediaSession.playbackState = 'playing'
-        console.debug(`${BT_DEBUG_PREFIX} MediaSession state set to playing`)
       } catch {
-        console.debug(`${BT_DEBUG_PREFIX} MediaSession playing state write failed`)
         // Safari occasionally throws when called before metadata settles.
       }
     })
     setActionHandler('pause', () => {
-      console.debug(`${BT_DEBUG_PREFIX} MediaSession pause handler`, {
-        playingBefore: useDroneStore.getState().playing,
-      })
       pauseMediaAnchor()
       useDroneStore.getState().setPlaying(false)
       try {
         navigator.mediaSession.playbackState = 'paused'
-        console.debug(`${BT_DEBUG_PREFIX} MediaSession state set to paused`)
       } catch {
-        console.debug(`${BT_DEBUG_PREFIX} MediaSession paused state write failed`)
         // Ignore; the next render will update playbackState anyway.
       }
     })
