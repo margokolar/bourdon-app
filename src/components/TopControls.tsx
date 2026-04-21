@@ -99,7 +99,7 @@ export function TopControls({
               -
             </button>
             <div className="flex-1 min-w-0 text-center text-base font-semibold tabular-nums">
-              {referenceA4Hz.toFixed(1)}
+              {Math.round(referenceA4Hz)}
             </div>
             <button
               className="flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
