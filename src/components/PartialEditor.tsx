@@ -1,4 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import type { PartialConfig } from '../audio/types'
 
 type PartialEditorProps = {
@@ -14,6 +15,60 @@ type PartialEditorProps = {
   onAddPartial: () => void
   onRemovePartial: (partialId: string) => void
   onSetTimbreValue: (key: 'sine' | 'saw' | 'square', value: number) => void
+}
+
+type NumericTextInputProps = {
+  value: number
+  onCommit: (value: number) => void
+  min: number
+  max: number
+  decimals: number
+  className: string
+  ariaLabel: string
+}
+
+function NumericTextInput({
+  value,
+  onCommit,
+  min,
+  max,
+  decimals,
+  className,
+  ariaLabel,
+}: NumericTextInputProps) {
+  const [draft, setDraft] = useState(() => value.toFixed(decimals))
+
+  useEffect(() => {
+    setDraft(value.toFixed(decimals))
+  }, [decimals, value])
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={draft}
+      onChange={(event) => {
+        const nextValue = event.currentTarget.value.replace(/[^0-9.-]/g, '')
+        setDraft(nextValue)
+        const parsed = Number(nextValue)
+        if (Number.isFinite(parsed)) {
+          onCommit(parsed)
+        }
+      }}
+      onBlur={() => {
+        const parsed = Number(draft)
+        if (!Number.isFinite(parsed)) {
+          setDraft(value.toFixed(decimals))
+          return
+        }
+        const clamped = Math.min(max, Math.max(min, parsed))
+        onCommit(clamped)
+        setDraft(clamped.toFixed(decimals))
+      }}
+      className={className}
+      aria-label={ariaLabel}
+    />
+  )
 }
 
 export function PartialEditor({
@@ -96,20 +151,14 @@ export function PartialEditor({
             <div className="grid grid-cols-[1fr_auto_auto] items-center gap-2 text-sm">
               <span className="text-white/60">Ratio</span>
               <span className="tabular-nums text-white/70">{partial.ratio.toFixed(3)}</span>
-              <input
-                type="number"
+              <NumericTextInput
+                value={partial.ratio}
+                onCommit={(value) => onSetPartialRatio(partial.id, value)}
                 min={0.125}
                 max={16}
-                step={0.001}
-                value={partial.ratio}
-                onChange={(event) => {
-                  const next = event.currentTarget.valueAsNumber
-                  if (Number.isFinite(next)) {
-                    onSetPartialRatio(partial.id, next)
-                  }
-                }}
+                decimals={3}
                 className="w-24 rounded-md border border-white/20 bg-white/5 px-2 py-1 text-right tabular-nums text-white"
-                aria-label="Partial ratio value"
+                ariaLabel="Partial ratio value"
               />
               <input
                 type="range"
@@ -125,20 +174,14 @@ export function PartialEditor({
             <div className="mt-3 grid grid-cols-[1fr_auto_auto] items-center gap-2 text-sm">
               <span className="text-white/60">Gain</span>
               <span className="tabular-nums text-white/70">{partial.gainDb.toFixed(1)} dB</span>
-              <input
-                type="number"
+              <NumericTextInput
+                value={partial.gainDb}
+                onCommit={(value) => onSetPartialGain(partial.id, value)}
                 min={-48}
                 max={0}
-                step={0.1}
-                value={partial.gainDb}
-                onChange={(event) => {
-                  const next = event.currentTarget.valueAsNumber
-                  if (Number.isFinite(next)) {
-                    onSetPartialGain(partial.id, next)
-                  }
-                }}
+                decimals={1}
                 className="w-24 rounded-md border border-white/20 bg-white/5 px-2 py-1 text-right tabular-nums text-white"
-                aria-label="Partial gain value in decibels"
+                ariaLabel="Partial gain value in decibels"
               />
               <input
                 type="range"

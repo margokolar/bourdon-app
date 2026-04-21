@@ -55,14 +55,11 @@ export function MetronomeControls({
           <span className="text-white/70">Tempo</span>
           <div className="flex flex-wrap items-center gap-2 text-white/85">
             <input
-              type="number"
-              min={30}
-              max={220}
-              step={1}
+              type="text"
               inputMode="numeric"
               value={bpmInput}
               onChange={(event) => {
-                const nextValue = event.target.value
+                const nextValue = event.target.value.replace(/[^0-9]/g, '')
                 setBpmInput(nextValue)
                 const parsed = Number(nextValue)
                 if (Number.isFinite(parsed)) {
