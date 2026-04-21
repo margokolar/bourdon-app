@@ -97,9 +97,9 @@ export function TopControls({
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-white/10 bg-white/5 p-3">
           <div className="mb-2 text-xs uppercase tracking-[0.16em] text-white/60">A4 reference</div>
-          <div className="flex items-center gap-1.5">
+          <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-1.5">
             <button
-              className="flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
               onClick={() => onReferenceNudge(-1)}
               type="button"
               aria-label="Decrease A4"
@@ -107,7 +107,7 @@ export function TopControls({
               -
             </button>
             <input
-              type="text"
+              type="tel"
               inputMode="numeric"
               enterKeyHint="done"
               value={a4InputValue}
@@ -126,11 +126,11 @@ export function TopControls({
                 }
                 onReferenceSet(Number(a4InputValue))
               }}
-              className="w-16 shrink-0 rounded-md border border-white/20 bg-white/5 px-2 py-1 text-center text-base font-semibold tabular-nums text-white outline-none focus:border-fuchsia-300/60"
+              className="min-w-0 w-full rounded-md border border-white/20 bg-white/5 px-2 py-1 text-center text-base font-semibold tabular-nums text-white outline-none focus:border-fuchsia-300/60"
               aria-label="A4 reference in hertz"
             />
             <button
-              className="flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
               onClick={() => onReferenceNudge(1)}
               type="button"
               aria-label="Increase A4"
