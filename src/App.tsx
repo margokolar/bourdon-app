@@ -366,6 +366,10 @@ function App() {
 
     const onUserGesture = (event: Event) => {
       const target = event.target as HTMLElement | null
+      const isTextEntryTrigger = Boolean(target?.closest('[data-text-entry-trigger="true"]'))
+      if (isTextEntryTrigger) {
+        return
+      }
       const isTextEntryTarget =
         target instanceof HTMLInputElement ||
         target instanceof HTMLTextAreaElement ||

@@ -135,11 +135,20 @@ export function NumericValueField({
         type="button"
         className={`${className} cursor-pointer`}
         aria-label={ariaLabel}
+        data-text-entry-trigger="true"
         onClick={openEditor}
+        onPointerUp={(event) => {
+          if (event.pointerType !== 'touch') {
+            return
+          }
+          event.preventDefault()
+          openEditor()
+        }}
         onTouchEnd={(event) => {
           event.preventDefault()
           openEditor()
         }}
+        style={{ touchAction: 'manipulation' }}
       >
         {formatValue(value, decimals)}
       </button>
