@@ -23,6 +23,13 @@ body {
     #111019;
 }
 
+input,
+textarea,
+select {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 #root {
   min-height: 100vh;
 }
