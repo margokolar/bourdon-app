@@ -24,6 +24,59 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'presets', label: 'Presets' },
 ]
 
+function isIosStandalone(): boolean {
+  const nav = navigator as Navigator & { standalone?: boolean }
+  const isIosDevice =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  const isStandalone = nav.standalone === true || window.matchMedia('(display-mode: standalone)').matches
+  return isIosDevice && isStandalone
+}
+
+function isKeyboardEligibleElement(target: EventTarget | null): target is HTMLInputElement | HTMLTextAreaElement {
+  if (target instanceof HTMLTextAreaElement) {
+    return true
+  }
+  if (!(target instanceof HTMLInputElement)) {
+    return false
+  }
+  const blockedTypes = new Set([
+    'button',
+    'checkbox',
+    'color',
+    'file',
+    'hidden',
+    'image',
+    'radio',
+    'range',
+    'reset',
+    'submit',
+  ])
+  return !blockedTypes.has(target.type)
+}
+
+function focusWithIosKeyboard(target: HTMLInputElement | HTMLTextAreaElement): void {
+  const tempInput = document.createElement('input')
+  const rect = target.getBoundingClientRect()
+  tempInput.type = 'text'
+  tempInput.setAttribute('aria-hidden', 'true')
+  tempInput.tabIndex = -1
+  tempInput.style.position = 'fixed'
+  tempInput.style.top = `${Math.max(0, rect.top)}px`
+  tempInput.style.left = `${Math.max(0, rect.left)}px`
+  tempInput.style.width = '1px'
+  tempInput.style.height = '1px'
+  tempInput.style.opacity = '0'
+  tempInput.style.pointerEvents = 'none'
+  document.body.appendChild(tempInput)
+  tempInput.focus()
+  window.setTimeout(() => {
+    target.focus()
+    target.click()
+    tempInput.remove()
+  }, 0)
+}
+
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<TabId>('tone')
@@ -345,6 +398,28 @@ function App() {
       }
       mediaAnchorPrimedRef.current = false
       mediaAnchorAudioRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isIosStandalone()) {
+      return
+    }
+
+    const onTouchEnd = (event: TouchEvent) => {
+      const target = event.target
+      if (!isKeyboardEligibleElement(target)) {
+        return
+      }
+      if (document.activeElement === target) {
+        return
+      }
+      focusWithIosKeyboard(target)
+    }
+
+    document.addEventListener('touchend', onTouchEnd, { capture: true })
+    return () => {
+      document.removeEventListener('touchend', onTouchEnd, { capture: true })
     }
   }, [])
 
