@@ -1,4 +1,3 @@
-import { Delete } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { isIosStandalonePwa } from '../utils/platform'
 
@@ -11,8 +10,6 @@ type NumericValueFieldProps = {
   className: string
   ariaLabel: string
 }
-
-const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
@@ -52,15 +49,12 @@ export function NumericValueField({
   ariaLabel,
 }: NumericValueFieldProps) {
   const [draft, setDraft] = useState(() => formatValue(value, decimals))
-  const [open, setOpen] = useState(false)
-  const useCustomKeypad = useMemo(() => isIosStandalonePwa(), [])
+  const useIosPrompt = useMemo(() => isIosStandalonePwa(), [])
   const allowNegative = min < 0
 
   useEffect(() => {
-    if (!open) {
-      setDraft(formatValue(value, decimals))
-    }
-  }, [decimals, open, value])
+    setDraft(formatValue(value, decimals))
+  }, [decimals, value])
 
   const commitValue = (rawValue: string) => {
     const parsed = Number(rawValue)
@@ -73,7 +67,7 @@ export function NumericValueField({
     setDraft(formatValue(nextValue, decimals))
   }
 
-  if (!useCustomKeypad) {
+  if (!useIosPrompt) {
     return (
       <input
         type="text"
@@ -96,133 +90,25 @@ export function NumericValueField({
     )
   }
 
-  const pushKey = (key: string) => {
-    if (key === '.' && decimals === 0) {
-      return
-    }
-    if (key === '.' && draft.includes('.')) {
-      return
-    }
-    const nextDraft = sanitizeDraft(`${draft}${key}`, decimals, allowNegative)
-    setDraft(nextDraft)
-  }
-
-  const toggleSign = () => {
-    if (!allowNegative) {
-      return
-    }
-    if (!draft) {
-      setDraft('-')
-      return
-    }
-    if (draft.startsWith('-')) {
-      setDraft(draft.slice(1))
-      return
-    }
-    setDraft(`-${draft}`)
-  }
-
-  const backspace = () => {
-    setDraft((current) => current.slice(0, -1))
-  }
-
   return (
-    <>
-      <button
-        type="button"
-        className={className}
-        aria-label={ariaLabel}
-        onClick={() => {
+    <button
+      type="button"
+      className={className}
+      aria-label={ariaLabel}
+      onClick={() => {
+        const response = window.prompt(ariaLabel, formatValue(value, decimals))
+        if (response === null) {
+          return
+        }
+        const nextValue = sanitizeDraft(response, decimals, allowNegative)
+        if (!nextValue) {
           setDraft(formatValue(value, decimals))
-          setOpen(true)
-        }}
-      >
-        {formatValue(value, decimals)}
-      </button>
-
-      {open && (
-        <div className="fixed inset-0 z-[60] flex items-end bg-black/70 p-3 sm:items-center sm:justify-center">
-          <button
-            type="button"
-            className="absolute inset-0"
-            aria-label="Close numeric keypad"
-            onClick={() => {
-              setDraft(formatValue(value, decimals))
-              setOpen(false)
-            }}
-          />
-          <div className="relative w-full max-w-xs rounded-2xl border border-white/10 bg-[#1a1825] p-4 shadow-2xl">
-            <div className="mb-3 text-xs uppercase tracking-[0.16em] text-white/60">{ariaLabel}</div>
-            <div className="mb-4 rounded-xl border border-white/10 bg-black/20 px-3 py-4 text-right text-2xl font-semibold tabular-nums text-white">
-              {draft || '0'}
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              {KEYS.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  className="min-h-[52px] rounded-xl border border-white/10 bg-white/5 text-lg font-semibold text-white transition hover:bg-white/10"
-                  onClick={() => pushKey(key)}
-                >
-                  {key}
-                </button>
-              ))}
-
-              <button
-                type="button"
-                className="min-h-[52px] rounded-xl border border-white/10 bg-white/5 text-lg font-semibold text-white transition hover:bg-white/10 disabled:opacity-40"
-                onClick={toggleSign}
-                disabled={!allowNegative}
-              >
-                +/-
-              </button>
-              <button
-                type="button"
-                className="min-h-[52px] rounded-xl border border-white/10 bg-white/5 text-lg font-semibold text-white transition hover:bg-white/10"
-                onClick={() => pushKey('0')}
-              >
-                0
-              </button>
-              <button
-                type="button"
-                className="min-h-[52px] rounded-xl border border-white/10 bg-white/5 text-lg font-semibold text-white transition hover:bg-white/10 disabled:opacity-40"
-                onClick={() => pushKey('.')}
-                disabled={decimals === 0}
-              >
-                .
-              </button>
-            </div>
-
-            <div className="mt-2 grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                className="min-h-[48px] rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                onClick={() => setDraft('')}
-              >
-                Clear
-              </button>
-              <button
-                type="button"
-                className="flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                onClick={backspace}
-              >
-                <Delete size={18} />
-              </button>
-              <button
-                type="button"
-                className="min-h-[48px] rounded-xl border border-fuchsia-300/60 bg-fuchsia-300/20 px-3 text-sm font-semibold text-white transition hover:bg-fuchsia-300/30"
-                onClick={() => {
-                  commitValue(draft)
-                  setOpen(false)
-                }}
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+          return
+        }
+        commitValue(nextValue)
+      }}
+    >
+      {formatValue(value, decimals)}
+    </button>
   )
 }
