@@ -16,8 +16,10 @@ export function SectionCard({ title, rightSlot, className, children }: SectionCa
         className,
       )}
     >
-      <header className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/75">{title}</h2>
+      <header className="mb-4 flex items-start justify-between gap-3">
+        <h2 className="text-safe text-sm font-semibold uppercase tracking-[0.16em] text-white/75">
+          {title}
+        </h2>
         {rightSlot}
       </header>
       {children}

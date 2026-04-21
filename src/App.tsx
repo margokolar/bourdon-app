@@ -419,23 +419,25 @@ function App() {
         </header>
 
         <nav
-          className="sticky top-2 z-30 mb-3 grid grid-cols-4 gap-1 rounded-xl border border-white/10 bg-[#111019]/90 p-1 backdrop-blur-sm"
+          className="sticky top-2 z-30 mb-3 overflow-x-auto rounded-xl border border-white/10 bg-[#111019]/90 p-1 backdrop-blur-sm"
           aria-label="App sections"
         >
-          {TABS.map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === id}
-              aria-controls={`panel-${id}`}
-              id={`tab-${id}`}
-              className={`rounded-lg border px-2 py-2 text-center text-sm font-medium transition ${activeTab === id ? 'border-white/25 bg-white/15 text-white' : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10'}`}
-              onClick={() => setActiveTab(id)}
-            >
-              {label}
-            </button>
-          ))}
+          <div className="flex min-w-max gap-1">
+            {TABS.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === id}
+                aria-controls={`panel-${id}`}
+                id={`tab-${id}`}
+                className={`button-safe shrink-0 rounded-lg border px-3 py-2 text-center text-sm font-medium transition ${activeTab === id ? 'border-white/25 bg-white/15 text-white' : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10'}`}
+                onClick={() => setActiveTab(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </nav>
 
         <main className="pb-6">
@@ -547,7 +549,7 @@ function App() {
             <div className="space-y-2">
               <button
                 type="button"
-                className="flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
+                className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
                 onClick={() => {
                   saveActivePreset()
                   setMenuOpen(false)
@@ -558,7 +560,7 @@ function App() {
               </button>
               <button
                 type="button"
-                className="flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
+                className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
                 onClick={() => {
                   saveAsPreset()
                   setMenuOpen(false)
@@ -569,7 +571,7 @@ function App() {
               </button>
               <button
                 type="button"
-                className="flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
+                className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
                 onClick={() => {
                   togglePlaying()
                   setMenuOpen(false)

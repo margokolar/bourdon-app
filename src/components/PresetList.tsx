@@ -109,7 +109,7 @@ export function PresetList({
           <button
             type="button"
             onClick={onSaveActivePreset}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-fuchsia-300/50 bg-fuchsia-300/15 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-300/25"
+            className="button-safe inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl border border-fuchsia-300/50 bg-fuchsia-300/15 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-300/25"
           >
             <Save size={18} />
             Save active
@@ -117,14 +117,14 @@ export function PresetList({
           <button
             type="button"
             onClick={onSaveAsPreset}
-            className="flex min-h-[44px] items-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            className="button-safe flex min-h-[44px] shrink-0 items-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
           >
             Save as new
           </button>
           <button
             type="button"
             onClick={onCreateNewPreset}
-            className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            className="button-safe flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
           >
             <Plus size={18} />
             New preset
@@ -132,7 +132,7 @@ export function PresetList({
           <button
             type="button"
             onClick={() => importInputRef.current?.click()}
-            className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            className="button-safe flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
           >
             <Upload size={18} />
             Import song
@@ -140,7 +140,7 @@ export function PresetList({
           <button
             type="button"
             onClick={exportSong}
-            className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            className="button-safe flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
           >
             <Download size={18} />
             Save song
@@ -167,7 +167,7 @@ export function PresetList({
               className={`rounded-xl border border-white/10 bg-white/5 p-3 transition hover:bg-white/10 ${!isEditing ? 'cursor-pointer' : ''}`}
               onClick={!isEditing ? () => onLoadPreset(preset.id) : undefined}
             >
-              <div className="mb-2 flex items-center justify-between gap-3">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex min-h-10 flex-1 items-center">
                   {(isEditing) ? (
                     <input
@@ -182,13 +182,13 @@ export function PresetList({
                           ;(e.target as HTMLInputElement).blur()
                         }
                       }}
-                      className="h-10 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-0 text-sm font-semibold leading-10 text-white outline-none focus:border-fuchsia-300/50 [user-select:text]"
+                      className="min-h-10 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold leading-tight text-white outline-none focus:border-fuchsia-300/50 [user-select:text]"
                       aria-label="Preset name"
                       autoFocus
                     />
                   ) : (
-                    <div className="min-h-10 w-full text-left">
-                      <div className="text-sm font-semibold text-white">{preset.name}</div>
+                    <div className="min-h-10 w-full min-w-0 text-left">
+                      <div className="text-safe text-sm font-semibold text-white">{preset.name}</div>
                       <div className="text-xs text-white/60">
                         {preset.tuningSystemId.toUpperCase()} • Center {preset.tonalCenter.toUpperCase()} • A4{' '}
                         {preset.referenceA4Hz.toFixed(1)}

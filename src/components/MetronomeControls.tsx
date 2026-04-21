@@ -51,9 +51,9 @@ export function MetronomeControls({
       </button>
 
       <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-        <div className="mb-2 flex items-center justify-between text-sm">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
           <span className="text-white/70">Tempo</span>
-          <div className="flex items-center gap-2 text-white/85">
+          <div className="flex flex-wrap items-center gap-2 text-white/85">
             <input
               type="number"
               min={30}
@@ -77,7 +77,7 @@ export function MetronomeControls({
                 }
                 onBpmChange(parsed)
               }}
-              className="w-16 rounded-md border border-white/15 bg-white/10 px-2 py-1 text-right tabular-nums text-sm text-white/90 outline-none transition focus:border-fuchsia-300/60"
+              className="w-20 max-w-full rounded-md border border-white/15 bg-white/10 px-2 py-1 text-right tabular-nums text-sm text-white/90 outline-none transition focus:border-fuchsia-300/60"
               aria-label="Tempo BPM"
             />
             <span>BPM</span>
@@ -124,7 +124,7 @@ export function MetronomeControls({
       </div>
 
       <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-        <div className="mb-2 flex items-center justify-between text-sm">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
           <span className="text-white/70">Click volume</span>
           <span className="tabular-nums text-white/85">{volumeDb.toFixed(1)} dB</span>
         </div>

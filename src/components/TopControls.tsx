@@ -39,7 +39,7 @@ export function TopControls({
   const ToneIcon = playing ? Pause : Play
 
   const selectBaseClass =
-    'h-14 w-full appearance-none rounded-xl border border-white/15 bg-white/5 px-3 pr-10 text-sm text-white outline-none transition focus:border-fuchsia-300/60'
+    'min-h-[56px] w-full appearance-none rounded-xl border border-white/15 bg-white/5 px-3 py-3 pr-10 text-sm leading-tight text-white outline-none transition focus:border-fuchsia-300/60'
 
   return (
     <div className="space-y-4">
@@ -150,7 +150,7 @@ export function TopControls({
       <div className="grid grid-cols-3 gap-3">
         <button
           type="button"
-          className="flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+          className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
           onClick={onPreviousPreset}
           aria-label="Previous preset"
         >
@@ -158,7 +158,7 @@ export function TopControls({
         </button>
         <button
           type="button"
-          className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 font-semibold text-white transition hover:bg-fuchsia-300/25"
+          className="button-safe flex min-h-[44px] min-w-0 flex-wrap items-center justify-center gap-2 rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
           onClick={onTogglePlay}
           aria-label={modeLabel}
         >
@@ -167,7 +167,7 @@ export function TopControls({
         </button>
         <button
           type="button"
-          className="flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+          className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
           onClick={onNextPreset}
           aria-label="Next preset"
         >

@@ -70,7 +70,7 @@ export function PartialEditor({
       <div className="space-y-3">
         {partials.map((partial, index) => (
           <article key={partial.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <div className="text-sm font-semibold text-white/85">Partial {index + 1}</div>
               <div className="flex items-center gap-2">
                 <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 text-xs text-white/70">
@@ -157,7 +157,7 @@ export function PartialEditor({
       <button
         type="button"
         onClick={onAddPartial}
-        className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-fuchsia-300/50 bg-fuchsia-300/15 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-300/25"
+        className="button-safe inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-fuchsia-300/50 bg-fuchsia-300/15 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-300/25"
       >
         <Plus size={18} />
         Add partial
