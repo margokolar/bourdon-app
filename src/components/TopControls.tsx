@@ -13,6 +13,7 @@ type TopControlsProps = {
   onNextPreset: () => void
   onPreviousPreset: () => void
   onReferenceNudge: (delta: number) => void
+  onReferenceSet: (frequency: number) => void
   onBaseOctaveNudge: (delta: number) => void
   onTuningSystemChange: (value: TuningSystemId) => void
   onTonalCenterChange: (value: TonalCenter) => void
@@ -30,6 +31,7 @@ export function TopControls({
   onNextPreset,
   onPreviousPreset,
   onReferenceNudge,
+  onReferenceSet,
   onBaseOctaveNudge,
   onTuningSystemChange,
   onTonalCenterChange,
@@ -98,7 +100,16 @@ export function TopControls({
             >
               -
             </button>
-            <div className="flex-1 min-w-0 text-center text-base font-semibold tabular-nums">{referenceA4Hz.toFixed(1)}</div>
+            <input
+              type="number"
+              min={400}
+              max={480}
+              step={1}
+              value={Math.round(referenceA4Hz)}
+              onChange={(event) => onReferenceSet(Number(event.target.value))}
+              className="flex-1 min-w-0 rounded-md border border-white/20 bg-white/5 px-2 py-1 text-center text-base font-semibold tabular-nums text-white outline-none focus:border-fuchsia-300/60"
+              aria-label="A4 reference in hertz"
+            />
             <button
               className="flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-base text-white transition hover:bg-white/10"
               onClick={() => onReferenceNudge(1)}
