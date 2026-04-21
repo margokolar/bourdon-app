@@ -36,6 +36,32 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
     }
   }, [playing])
 
+  useEffect(() => {
+    if (!playing || !engineRef.current) {
+      return
+    }
+
+    const retryStart = () => {
+      if (!engineRef.current || !playing) {
+        return
+      }
+      void engineRef.current.start(latestConfigRef.current)
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        retryStart()
+      }
+    }
+
+    window.addEventListener('pageshow', retryStart)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      window.removeEventListener('pageshow', retryStart)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [playing])
+
   useEffect(
     () => () => {
       if (engineRef.current) {
