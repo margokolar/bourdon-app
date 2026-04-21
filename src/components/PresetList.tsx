@@ -104,55 +104,57 @@ export function PresetList({
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-nowrap gap-2">
-        <button
-          type="button"
-          onClick={onSaveActivePreset}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-fuchsia-300/50 bg-fuchsia-300/15 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-300/25"
-        >
-          <Save size={18} />
-          Save active
-        </button>
-        <button
-          type="button"
-          onClick={onSaveAsPreset}
-          className="flex min-h-[44px] items-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-        >
-          Save as new
-        </button>
-        <button
-          type="button"
-          onClick={onCreateNewPreset}
-          className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-        >
-          <Plus size={18} />
-          New preset
-        </button>
-        <button
-          type="button"
-          onClick={() => importInputRef.current?.click()}
-          className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-        >
-          <Upload size={18} />
-          Import song
-        </button>
-        <button
-          type="button"
-          onClick={exportSong}
-          className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-        >
-          <Download size={18} />
-          Save song
-        </button>
-        <input
-          ref={importInputRef}
-          type="file"
-          accept=".json,.song.json,application/json"
-          className="hidden"
-          onChange={(event) => {
-            void importSong(event)
-          }}
-        />
+      <div className="max-w-full overflow-x-auto pb-1">
+        <div className="flex min-w-max flex-nowrap gap-2">
+          <button
+            type="button"
+            onClick={onSaveActivePreset}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-fuchsia-300/50 bg-fuchsia-300/15 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-300/25"
+          >
+            <Save size={18} />
+            Save active
+          </button>
+          <button
+            type="button"
+            onClick={onSaveAsPreset}
+            className="flex min-h-[44px] items-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            Save as new
+          </button>
+          <button
+            type="button"
+            onClick={onCreateNewPreset}
+            className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            <Plus size={18} />
+            New preset
+          </button>
+          <button
+            type="button"
+            onClick={() => importInputRef.current?.click()}
+            className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            <Upload size={18} />
+            Import song
+          </button>
+          <button
+            type="button"
+            onClick={exportSong}
+            className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            <Download size={18} />
+            Save song
+          </button>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".json,.song.json,application/json"
+            className="hidden"
+            onChange={(event) => {
+              void importSong(event)
+            }}
+          />
+        </div>
       </div>
 
       <div className="space-y-2">
