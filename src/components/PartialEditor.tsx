@@ -94,9 +94,8 @@ export function PartialEditor({
               </div>
             </div>
 
-            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-2 text-sm">
+            <div className="grid grid-cols-[1fr_auto] items-center gap-2 text-sm">
               <span className="text-white/60">Ratio</span>
-              <span className="tabular-nums text-white/70">{partial.ratio.toFixed(3)}</span>
               <NumericValueField
                 value={partial.ratio}
                 onCommit={(value) => onSetPartialRatio(partial.id, value)}
@@ -113,7 +112,7 @@ export function PartialEditor({
                 step={0.001}
                 value={partial.ratio}
                 onChange={(event) => onSetPartialRatio(partial.id, Number(event.target.value))}
-                className="col-span-3 h-2 w-full accent-fuchsia-300"
+                className="col-span-2 h-2 w-full accent-fuchsia-300"
               />
             </div>
 
