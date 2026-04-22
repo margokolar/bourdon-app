@@ -12,6 +12,7 @@ import { createDefaultPartials, DEFAULT_PRESETS, type Preset } from '../presets/
 
 type DroneState = {
   playing: boolean
+  songName: string
   activePresetId: string
   presets: Preset[]
   tuningSystemId: TuningSystemId
@@ -59,7 +60,7 @@ type DroneState = {
   duplicatePreset: (presetId: string) => void
   deletePreset: (presetId: string) => void
   movePreset: (presetId: string, direction: 'up' | 'down') => void
-  importSong: (songPresets: Preset[], activePresetId?: string) => void
+  importSong: (songPresets: Preset[], activePresetId?: string, songName?: string) => void
   selectNextPreset: () => void
   selectPreviousPreset: () => void
 }
@@ -125,6 +126,7 @@ export const useDroneStore = create<DroneState>()(
   persist(
     (set, get) => ({
       playing: false,
+      songName: 'My Song',
       presets: DEFAULT_PRESETS.map((preset) => duplicatePresetData(preset)),
       activePresetId: INITIAL_PRESET.id,
       tuningSystemId: INITIAL_PRESET.tuningSystemId,
@@ -412,7 +414,7 @@ export const useDroneStore = create<DroneState>()(
           next[swapIndex] = current
           return { presets: next }
         }),
-      importSong: (songPresets, activePresetId) =>
+      importSong: (songPresets, activePresetId, songName) =>
         set((state) => {
           if (!Array.isArray(songPresets) || songPresets.length === 0) {
             return state
@@ -439,6 +441,7 @@ export const useDroneStore = create<DroneState>()(
           const active =
             imported.find((preset) => preset.id === activePresetId) ?? imported[0]
           return {
+            songName: songName?.trim() || state.songName,
             presets: imported,
             ...applyPresetState(active),
           }
@@ -490,6 +493,7 @@ export const useDroneStore = create<DroneState>()(
           presets: migratedPresets,
           partials: normalizePartials(incomingPartials),
           baseOctave: clamp(typed.baseOctave ?? 3, MIN_BASE_OCTAVE, MAX_BASE_OCTAVE),
+          songName: typed.songName ?? 'My Song',
           metronomeEnabled: typed.metronomeEnabled ?? false,
           metronomeBpm: typed.metronomeBpm ?? 72,
           metronomeVolumeDb: typed.metronomeVolumeDb ?? -15,
@@ -497,6 +501,7 @@ export const useDroneStore = create<DroneState>()(
       },
       partialize: (state) => ({
         presets: state.presets,
+        songName: state.songName,
         activePresetId: state.activePresetId,
         tuningSystemId: state.tuningSystemId,
         tonalCenter: state.tonalCenter,

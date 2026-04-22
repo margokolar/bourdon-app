@@ -5,6 +5,7 @@ import type { Preset } from '../presets/defaultPresets'
 type PresetListProps = {
   presets: Preset[]
   activePresetId: string
+  songName: string
   onLoadPreset: (presetId: string) => void
   onSaveActivePreset: () => void
   onSaveAsPreset: () => void
@@ -13,12 +14,13 @@ type PresetListProps = {
   onDuplicatePreset: (presetId: string) => void
   onDeletePreset: (presetId: string) => void
   onMovePreset: (presetId: string, direction: 'up' | 'down') => void
-  onImportSong: (songPresets: Preset[], activePresetId?: string) => void
+  onImportSong: (songPresets: Preset[], activePresetId?: string, songName?: string) => void
 }
 
 export function PresetList({
   presets,
   activePresetId,
+  songName: currentSongName,
   onLoadPreset,
   onSaveActivePreset,
   onSaveAsPreset,
@@ -34,7 +36,7 @@ export function PresetList({
   const importInputRef = useRef<HTMLInputElement | null>(null)
 
   const exportSong = () => {
-    const inputName = window.prompt('Song name', 'My Song') ?? ''
+    const inputName = window.prompt('Song name', currentSongName) ?? ''
     const songName = inputName.trim() || 'My Song'
     const activePreset = presets.find((preset) => preset.id === activePresetId)
     const payload = {
@@ -79,12 +81,13 @@ export function PresetList({
       const parsed = JSON.parse(content) as {
         presets?: Preset[]
         activePresetId?: string
+        name?: string
       }
       if (!Array.isArray(parsed.presets) || parsed.presets.length === 0) {
         window.alert('Invalid song file: presets are missing.')
         return
       }
-      onImportSong(parsed.presets, parsed.activePresetId)
+      onImportSong(parsed.presets, parsed.activePresetId, parsed.name)
     } catch {
       window.alert('Could not import song file.')
     } finally {

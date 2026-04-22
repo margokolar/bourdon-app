@@ -85,6 +85,7 @@ function App() {
   const upPressTimeoutRef = useRef<number | null>(null)
   const playing = useDroneStore((state) => state.playing)
   const activePresetId = useDroneStore((state) => state.activePresetId)
+  const songName = useDroneStore((state) => state.songName)
   const presets = useDroneStore((state) => state.presets)
   const tones = useDroneStore((state) => state.tones)
   const partials = useDroneStore((state) => state.partials)
@@ -653,10 +654,18 @@ function App() {
             </SectionCard>
           </div>
           <div className="space-y-4" role="tabpanel" id="panel-presets" aria-labelledby="tab-presets" hidden={activeTab !== 'presets'}>
-            <SectionCard title="Presets">
+            <SectionCard
+              title="Presets"
+              rightSlot={
+                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/70">
+                  {songName}
+                </span>
+              }
+            >
               <PresetList
                 presets={presets}
                 activePresetId={activePresetId}
+                songName={songName}
                 onLoadPreset={(presetId) => {
                   loadPreset(presetId)
                 }}
