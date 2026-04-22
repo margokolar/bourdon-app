@@ -117,9 +117,8 @@ export function PartialEditor({
               />
             </div>
 
-            <div className="mt-3 grid grid-cols-[1fr_auto_auto] items-center gap-2 text-sm">
+            <div className="mt-3 grid grid-cols-[1fr_auto] items-center gap-2 text-sm">
               <span className="text-white/60">Gain</span>
-              <span className="tabular-nums text-white/70">{partial.gainDb.toFixed(1)} dB</span>
               <NumericValueField
                 value={partial.gainDb}
                 onCommit={(value) => onSetPartialGain(partial.id, value)}
@@ -136,7 +135,7 @@ export function PartialEditor({
                 step={0.1}
                 value={partial.gainDb}
                 onChange={(event) => onSetPartialGain(partial.id, Number(event.target.value))}
-                className="col-span-3 h-2 w-full accent-fuchsia-300"
+                className="col-span-2 h-2 w-full accent-fuchsia-300"
               />
             </div>
           </article>
