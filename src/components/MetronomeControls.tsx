@@ -62,7 +62,7 @@ export function MetronomeControls({
               min={30}
               max={220}
               decimals={0}
-              className="w-24 max-w-full rounded-md border border-white/15 bg-white/10 px-2 py-1 text-right tabular-nums text-xl text-white/90 outline-none transition focus:border-fuchsia-300/60"
+              className="w-28 max-w-full rounded-md border border-white/15 bg-white/10 px-2 py-1 text-right tabular-nums text-3xl text-white/90 outline-none transition focus:border-fuchsia-300/60"
               ariaLabel="Tempo BPM"
             />
             <button
