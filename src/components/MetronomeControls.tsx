@@ -1,7 +1,7 @@
 import { Pause, Play } from 'lucide-react'
 import { NumericValueField } from './NumericValueField'
 
-const TEMPO_PRESETS = [60, 72, 84, 96, 108, 120]
+const TEMPO_PRESETS = Array.from({ length: 13 }, (_, index) => 40 + index * 10)
 
 type MetronomeControlsProps = {
   enabled: boolean
@@ -85,31 +85,33 @@ export function MetronomeControls({
           onChange={(event) => onBpmChange(Number(event.target.value))}
           className="h-2 w-full accent-fuchsia-300"
         />
-        <div className="mt-3 flex flex-wrap gap-2">
-          {TEMPO_PRESETS.map((presetBpm) => {
-            const isActive = Math.round(bpm) === presetBpm
-            let presetClassName =
-              'rounded-md border px-2 py-1 text-xs tabular-nums transition'
-            if (isActive) {
-              presetClassName +=
-                ' border-fuchsia-300/70 bg-fuchsia-300/25 text-fuchsia-50 shadow-[0_0_0_1px_rgba(245,158,255,0.25)]'
-            }
-            if (!isActive) {
-              presetClassName +=
-                ' border-white/15 bg-white/10 text-white/80 hover:border-white/25 hover:bg-white/15'
-            }
-            return (
-              <button
-                key={presetBpm}
-                type="button"
-                className={presetClassName}
-                onClick={() => onBpmChange(presetBpm)}
-                aria-label={`Set tempo to ${presetBpm} BPM`}
-              >
-                {presetBpm}
-              </button>
-            )
-          })}
+        <div className="hide-scrollbar mt-3 overflow-x-auto">
+          <div className="flex min-w-max gap-2">
+            {TEMPO_PRESETS.map((presetBpm) => {
+              const isActive = Math.round(bpm) === presetBpm
+              let presetClassName =
+                'rounded-md border px-2 py-1 text-xs tabular-nums transition'
+              if (isActive) {
+                presetClassName +=
+                  ' border-fuchsia-300/70 bg-fuchsia-300/25 text-fuchsia-50 shadow-[0_0_0_1px_rgba(245,158,255,0.25)]'
+              }
+              if (!isActive) {
+                presetClassName +=
+                  ' border-white/15 bg-white/10 text-white/80 hover:border-white/25 hover:bg-white/15'
+              }
+              return (
+                <button
+                  key={presetBpm}
+                  type="button"
+                  className={presetClassName}
+                  onClick={() => onBpmChange(presetBpm)}
+                  aria-label={`Set tempo to ${presetBpm} BPM`}
+                >
+                  {presetBpm}
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
