@@ -1,4 +1,4 @@
-import { ChevronDown, Info, Menu, Pause, Play, Save, Trash2, Upload, X } from 'lucide-react'
+import { ChevronDown, Info, Menu, Pause, Play, Save, StepBack, StepForward, Trash2, Upload, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { droneEngine } from './audio/DroneEngine'
 import type { DroneRuntimeConfig } from './audio/types'
@@ -739,6 +739,35 @@ function App() {
                 onImportSong={importSong}
               />
             </SectionCard>
+          </div>
+          <div className="sticky bottom-2 z-30 mt-4 rounded-xl border border-white/10 bg-[#111019]/90 p-2 backdrop-blur-sm">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+                onClick={selectPreviousPreset}
+                aria-label="Previous preset"
+              >
+                <StepBack size={22} />
+              </button>
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] min-w-0 flex-wrap items-center justify-center gap-2 rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
+                onClick={handleTogglePlay}
+                aria-label={playing ? 'Pause' : 'Play'}
+              >
+                {(playing && <Pause size={22} />) || <Play size={22} />}
+                {playing ? 'Pause' : 'Play'}
+              </button>
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+                onClick={selectNextPreset}
+                aria-label="Next preset"
+              >
+                <StepForward size={22} />
+              </button>
+            </div>
           </div>
         </main>
       </div>
