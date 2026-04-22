@@ -1,4 +1,4 @@
-import { Info, Menu, Pause, Play, Save, Upload, X } from 'lucide-react'
+import { ChevronDown, Info, Menu, Pause, Play, Save, Upload, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { droneEngine } from './audio/DroneEngine'
 import type { DroneRuntimeConfig } from './audio/types'
@@ -80,12 +80,14 @@ function focusWithIosKeyboard(target: HTMLInputElement | HTMLTextAreaElement): v
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<TabId>('tone')
+  const [songMenuOpen, setSongMenuOpen] = useState(false)
   const mediaAnchorPrimedRef = useRef(false)
   const mediaAnchorAudioRef = useRef<HTMLAudioElement | null>(null)
   const upPressTimeoutRef = useRef<number | null>(null)
   const playing = useDroneStore((state) => state.playing)
   const activePresetId = useDroneStore((state) => state.activePresetId)
   const songName = useDroneStore((state) => state.songName)
+  const songLibrary = useDroneStore((state) => state.songLibrary)
   const presets = useDroneStore((state) => state.presets)
   const tones = useDroneStore((state) => state.tones)
   const partials = useDroneStore((state) => state.partials)
@@ -128,6 +130,7 @@ function App() {
   const deletePreset = useDroneStore((state) => state.deletePreset)
   const movePreset = useDroneStore((state) => state.movePreset)
   const importSong = useDroneStore((state) => state.importSong)
+  const loadSongFromLibrary = useDroneStore((state) => state.loadSongFromLibrary)
   const selectNextPreset = useDroneStore((state) => state.selectNextPreset)
   const selectPreviousPreset = useDroneStore((state) => state.selectPreviousPreset)
 
@@ -657,9 +660,42 @@ function App() {
             <SectionCard
               title="Presets"
               rightSlot={
-                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/70">
-                  {songName}
-                </span>
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/80 transition hover:bg-white/10"
+                    onClick={() => setSongMenuOpen((current) => !current)}
+                    aria-expanded={songMenuOpen}
+                    aria-label="Open song list"
+                  >
+                    <span>{songName}</span>
+                    <ChevronDown size={12} />
+                  </button>
+                  {songMenuOpen && (
+                    <div className="absolute right-0 z-40 mt-1 max-h-56 w-44 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-1 shadow-xl">
+                      {songLibrary.map((song) => {
+                        const isActiveSong = song.name === songName
+                        return (
+                          <button
+                            key={song.id}
+                            type="button"
+                            className={`block w-full rounded-md px-2 py-1.5 text-left text-xs transition ${
+                              isActiveSong
+                                ? 'bg-fuchsia-300/20 text-fuchsia-100'
+                                : 'text-white/80 hover:bg-white/10'
+                            }`}
+                            onClick={() => {
+                              loadSongFromLibrary(song.id)
+                              setSongMenuOpen(false)
+                            }}
+                          >
+                            {song.name}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               }
             >
               <PresetList
