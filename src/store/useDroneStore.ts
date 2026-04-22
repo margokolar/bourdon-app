@@ -70,6 +70,7 @@ type DroneState = {
   movePreset: (presetId: string, direction: 'up' | 'down') => void
   importSong: (songPresets: Preset[], activePresetId?: string, songName?: string) => void
   loadSongFromLibrary: (songId: string) => void
+  deleteSongFromLibrary: (songId: string) => void
   selectNextPreset: () => void
   selectPreviousPreset: () => void
 }
@@ -483,6 +484,35 @@ export const useDroneStore = create<DroneState>()(
           return {
             songName: song.name,
             songLibrary: state.songLibrary,
+            presets: copiedPresets,
+            ...applyPresetState(active),
+          }
+        }),
+      deleteSongFromLibrary: (songId) =>
+        set((state) => {
+          if (state.songLibrary.length <= 1) {
+            return state
+          }
+          const target = state.songLibrary.find((entry) => entry.id === songId)
+          if (!target) {
+            return state
+          }
+          const filtered = state.songLibrary.filter((entry) => entry.id !== songId)
+          if (filtered.length === 0) {
+            return state
+          }
+          const isDeletingActiveSong = state.songName === target.name
+          if (!isDeletingActiveSong) {
+            return {
+              songLibrary: filtered,
+            }
+          }
+          const fallbackSong = filtered[0]
+          const copiedPresets = fallbackSong.presets.map((preset) => duplicatePresetData(preset))
+          const active = copiedPresets.find((preset) => preset.id === fallbackSong.activePresetId) ?? copiedPresets[0]
+          return {
+            songName: fallbackSong.name,
+            songLibrary: filtered,
             presets: copiedPresets,
             ...applyPresetState(active),
           }

@@ -1,4 +1,4 @@
-import { ChevronDown, Info, Menu, Pause, Play, Save, Upload, X } from 'lucide-react'
+import { ChevronDown, Info, Menu, Pause, Play, Save, Trash2, Upload, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { droneEngine } from './audio/DroneEngine'
 import type { DroneRuntimeConfig } from './audio/types'
@@ -131,6 +131,7 @@ function App() {
   const movePreset = useDroneStore((state) => state.movePreset)
   const importSong = useDroneStore((state) => state.importSong)
   const loadSongFromLibrary = useDroneStore((state) => state.loadSongFromLibrary)
+  const deleteSongFromLibrary = useDroneStore((state) => state.deleteSongFromLibrary)
   const selectNextPreset = useDroneStore((state) => state.selectNextPreset)
   const selectPreviousPreset = useDroneStore((state) => state.selectPreviousPreset)
 
@@ -676,21 +677,44 @@ function App() {
                       {songLibrary.map((song) => {
                         const isActiveSong = song.name === songName
                         return (
-                          <button
+                          <div
                             key={song.id}
-                            type="button"
-                            className={`block w-full rounded-md px-2 py-1.5 text-left text-xs transition ${
-                              isActiveSong
-                                ? 'bg-fuchsia-300/20 text-fuchsia-100'
-                                : 'text-white/80 hover:bg-white/10'
+                            className={`flex items-center gap-1 rounded-md px-1 py-1 ${
+                              isActiveSong ? 'bg-fuchsia-300/20' : ''
                             }`}
-                            onClick={() => {
-                              loadSongFromLibrary(song.id)
-                              setSongMenuOpen(false)
-                            }}
                           >
-                            {song.name}
-                          </button>
+                            <button
+                              type="button"
+                              className={`min-w-0 flex-1 rounded px-1 py-1 text-left text-xs transition ${
+                                isActiveSong
+                                  ? 'text-fuchsia-100'
+                                  : 'text-white/80 hover:bg-white/10'
+                              }`}
+                              onClick={() => {
+                                loadSongFromLibrary(song.id)
+                                setSongMenuOpen(false)
+                              }}
+                            >
+                              <span className="block truncate">{song.name}</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="flex h-6 w-6 items-center justify-center rounded border border-red-300/40 bg-red-300/10 text-red-100 transition hover:bg-red-300/20 disabled:opacity-40"
+                              aria-label={`Delete ${song.name}`}
+                              disabled={songLibrary.length <= 1}
+                              onClick={() => {
+                                const confirmed = window.confirm(
+                                  `Delete song \"${song.name}\" from library?`,
+                                )
+                                if (!confirmed) {
+                                  return
+                                }
+                                deleteSongFromLibrary(song.id)
+                              }}
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
                         )
                       })}
                     </div>
