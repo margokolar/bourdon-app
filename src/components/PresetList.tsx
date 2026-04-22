@@ -72,28 +72,36 @@ export function PresetList({
   }
 
   const importSong = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) {
+    const files = Array.from(event.target.files ?? [])
+    if (files.length === 0) {
       return
     }
-    try {
-      const content = await file.text()
-      const parsed = JSON.parse(content) as {
-        presets?: Preset[]
-        activePresetId?: string
-        name?: string
+
+    let importedCount = 0
+    for (const file of files) {
+      try {
+        const content = await file.text()
+        const parsed = JSON.parse(content) as {
+          presets?: Preset[]
+          activePresetId?: string
+          name?: string
+        }
+        if (!Array.isArray(parsed.presets) || parsed.presets.length === 0) {
+          continue
+        }
+        onImportSong(parsed.presets, parsed.activePresetId, parsed.name)
+        importedCount += 1
+      } catch {
+        // Skip invalid files and keep importing remaining selections.
       }
-      if (!Array.isArray(parsed.presets) || parsed.presets.length === 0) {
-        window.alert('Invalid song file: presets are missing.')
-        return
-      }
-      onImportSong(parsed.presets, parsed.activePresetId, parsed.name)
-    } catch {
-      window.alert('Could not import song file.')
-    } finally {
-      if (importInputRef.current) {
-        importInputRef.current.value = ''
-      }
+    }
+
+    if (importedCount === 0) {
+      window.alert('Could not import any selected song files.')
+    }
+
+    if (importInputRef.current) {
+      importInputRef.current.value = ''
     }
   }
 
@@ -151,6 +159,7 @@ export function PresetList({
           <input
             ref={importInputRef}
             type="file"
+          multiple
             accept=".json,.song.json,application/json"
             className="hidden"
             onChange={(event) => {
