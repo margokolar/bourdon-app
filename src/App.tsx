@@ -24,6 +24,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'metronome', label: 'Click' },
   { id: 'presets', label: 'Presets' },
 ]
+const APP_VERSION = '1.1'
 
 function isIosStandalone(): boolean {
   const nav = navigator as Navigator & { standalone?: boolean }
@@ -637,7 +638,7 @@ function App() {
           >
             <Menu size={20} />
           </button>
-          <h1 className="text-xl font-semibold tracking-wide">Drone v1.0.9</h1>
+          <h1 className="text-xl font-semibold tracking-wide">Drone</h1>
           <div className="min-h-[44px] min-w-[44px]" />
         </header>
 
@@ -925,7 +926,7 @@ function App() {
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/70">
                 <div className="mb-1 flex items-center gap-2 text-white/80">
                   <Info size={14} />
-                  Drone v1.0.9
+                  Drone v{APP_VERSION}
                 </div>
                 <p>Professional drone reference for tuning and intonation practice.</p>
               </div>
