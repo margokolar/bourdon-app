@@ -124,8 +124,8 @@ export function TopControls({
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-        <div className="mb-2 text-xs uppercase tracking-[0.16em] text-white/60">Master gain</div>
+      <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+        <div className="mb-1 text-xs uppercase tracking-[0.16em] text-white/60">Master gain</div>
         <input
           type="range"
           min={-30}
@@ -133,9 +133,9 @@ export function TopControls({
           step={0.1}
           value={masterGainDb}
           onChange={(event) => onMasterGainChange(Number(event.target.value))}
-          className="h-2 w-full accent-fuchsia-300"
+          className="h-1.5 w-full accent-fuchsia-300"
         />
-        <div className="mt-2 text-right text-xs tabular-nums text-white/70">{masterGainDb.toFixed(1)} dB</div>
+        <div className="mt-1 text-right text-xs tabular-nums text-white/70">{masterGainDb.toFixed(1)} dB</div>
       </div>
 
     </div>
