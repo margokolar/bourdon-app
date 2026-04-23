@@ -664,7 +664,7 @@ function App() {
                 <div className="relative">
                   <button
                     type="button"
-                    className="flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/80 transition hover:bg-white/10"
+                    className="flex min-h-[34px] items-center gap-1 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 transition hover:bg-white/10"
                     onClick={() => setSongMenuOpen((current) => !current)}
                     aria-expanded={songMenuOpen}
                     aria-label="Open song list"
