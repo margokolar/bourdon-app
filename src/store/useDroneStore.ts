@@ -55,6 +55,7 @@ type DroneState = {
   setPartialGain: (partialId: string, gainDb: number) => void
   setPartialRatio: (partialId: string, ratio: number) => void
   setPartialEnabled: (partialId: string, enabled: boolean) => void
+  setPartials: (partials: PartialConfig[]) => void
   addPartial: () => void
   removePartial: (partialId: string) => void
   setMetronomeEnabled: (enabled: boolean) => void
@@ -279,6 +280,10 @@ export const useDroneStore = create<DroneState>()(
             }
           }),
         })),
+      setPartials: (partials) =>
+        set({
+          partials: normalizePartials(partials.map((partial) => ({ ...partial }))),
+        }),
       addPartial: () =>
         set((state) => {
           const nextIndex = state.partials.length + 1

@@ -6,6 +6,7 @@ type OvertoneBarsProps = {
   partials: PartialConfig[]
   onGainChange: (partialId: string, gainDb: number) => void
   onToggleEnabled: (partialId: string, enabled: boolean) => void
+  onGainDragStart?: () => void
 }
 
 const MIN_DB = -48
@@ -19,7 +20,7 @@ function toDbFromPercent(percent: number): number {
   return MIN_DB + (clamp(percent, 0, 100) / 100) * (MAX_DB - MIN_DB)
 }
 
-export function OvertoneBars({ partials, onGainChange, onToggleEnabled }: OvertoneBarsProps) {
+export function OvertoneBars({ partials, onGainChange, onToggleEnabled, onGainDragStart }: OvertoneBarsProps) {
   const [activePartialId, setActivePartialId] = useState<string | null>(null)
   const [dragGainDb, setDragGainDb] = useState<number | null>(null)
   const rafIdRef = useRef<number | null>(null)
@@ -58,7 +59,6 @@ export function OvertoneBars({ partials, onGainChange, onToggleEnabled }: Overto
 
   return (
     <div className="space-y-3">
-      <div className="text-xs uppercase tracking-[0.16em] text-white/60">Overtone balance</div>
       <div className="hide-scrollbar touch-pan-x overflow-x-auto">
         <div className="grid min-w-[620px] grid-cols-16 gap-1">
           {partials.map((partial, index) => {
@@ -82,6 +82,7 @@ export function OvertoneBars({ partials, onGainChange, onToggleEnabled }: Overto
                   onPointerDown={(event) => {
                     event.preventDefault()
                     event.currentTarget.setPointerCapture(event.pointerId)
+                    onGainDragStart?.()
                     setActivePartialId(partial.id)
                     setDragGainDb(partial.gainDb)
                     updateByPointer(partial.id, event)

@@ -1,7 +1,22 @@
-import { ChevronDown, Download, Info, Menu, Pause, Play, Save, StepBack, StepForward, Trash2, Upload, X } from 'lucide-react'
+import {
+  ChevronDown,
+  Download,
+  Info,
+  Menu,
+  Pause,
+  Play,
+  Redo2,
+  Save,
+  StepBack,
+  StepForward,
+  Trash2,
+  Undo2,
+  Upload,
+  X,
+} from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { droneEngine } from './audio/DroneEngine'
-import type { DroneRuntimeConfig } from './audio/types'
+import type { DroneRuntimeConfig, PartialConfig } from './audio/types'
 import { MetronomeControls } from './components/MetronomeControls'
 import { NoteSelector } from './components/NoteSelector'
 import { OvertoneBars } from './components/OvertoneBars'
@@ -25,6 +40,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'presets', label: 'Presets' },
 ]
 const APP_VERSION = '1.1'
+const MAX_OVERTONE_HISTORY = 60
 
 function isIosStandalone(): boolean {
   const nav = navigator as Navigator & { standalone?: boolean }
@@ -90,6 +106,9 @@ function App() {
   const mediaAnchorAudioRef = useRef<HTMLAudioElement | null>(null)
   const upPressTimeoutRef = useRef<number | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
+  const overtoneUndoRef = useRef<PartialConfig[][]>([])
+  const overtoneRedoRef = useRef<PartialConfig[][]>([])
+  const [, setOvertoneHistoryVersion] = useState(0)
   const playing = useDroneStore((state) => state.playing)
   const activePresetId = useDroneStore((state) => state.activePresetId)
   const songName = useDroneStore((state) => state.songName)
@@ -119,6 +138,7 @@ function App() {
   const setToneGain = useDroneStore((state) => state.setToneGain)
   const setTonePan = useDroneStore((state) => state.setTonePan)
   const setPartialEnabled = useDroneStore((state) => state.setPartialEnabled)
+  const setPartials = useDroneStore((state) => state.setPartials)
   const setPartialRatio = useDroneStore((state) => state.setPartialRatio)
   const setPartialGain = useDroneStore((state) => state.setPartialGain)
   const addPartial = useDroneStore((state) => state.addPartial)
@@ -141,6 +161,67 @@ function App() {
   const saveCurrentSongToLibrary = useDroneStore((state) => state.saveCurrentSongToLibrary)
   const selectNextPreset = useDroneStore((state) => state.selectNextPreset)
   const selectPreviousPreset = useDroneStore((state) => state.selectPreviousPreset)
+
+  const clonePartials = useCallback(
+    (source: PartialConfig[]) => source.map((partial) => ({ ...partial })),
+    [],
+  )
+
+  const samePartials = useCallback((a: PartialConfig[], b: PartialConfig[]) => {
+    if (a.length !== b.length) {
+      return false
+    }
+    for (let index = 0; index < a.length; index += 1) {
+      const left = a[index]
+      const right = b[index]
+      if (
+        left.id !== right.id ||
+        left.enabled !== right.enabled ||
+        left.gainDb !== right.gainDb ||
+        left.ratio !== right.ratio
+      ) {
+        return false
+      }
+    }
+    return true
+  }, [])
+
+  const rememberOvertoneState = useCallback(() => {
+    const snapshot = clonePartials(useDroneStore.getState().partials)
+    const currentTop = overtoneUndoRef.current[overtoneUndoRef.current.length - 1]
+    if (currentTop && samePartials(currentTop, snapshot)) {
+      return
+    }
+    overtoneUndoRef.current.push(snapshot)
+    if (overtoneUndoRef.current.length > MAX_OVERTONE_HISTORY) {
+      overtoneUndoRef.current.shift()
+    }
+    overtoneRedoRef.current = []
+    setOvertoneHistoryVersion((value) => value + 1)
+  }, [clonePartials, samePartials])
+
+  const undoOvertoneChange = useCallback(() => {
+    const previous = overtoneUndoRef.current.pop()
+    if (!previous) {
+      return
+    }
+    overtoneRedoRef.current.push(clonePartials(useDroneStore.getState().partials))
+    setPartials(previous)
+    setOvertoneHistoryVersion((value) => value + 1)
+  }, [clonePartials, setPartials])
+
+  const redoOvertoneChange = useCallback(() => {
+    const next = overtoneRedoRef.current.pop()
+    if (!next) {
+      return
+    }
+    overtoneUndoRef.current.push(clonePartials(useDroneStore.getState().partials))
+    setPartials(next)
+    setOvertoneHistoryVersion((value) => value + 1)
+  }, [clonePartials, setPartials])
+
+  const canUndoOvertones = overtoneUndoRef.current.length > 0
+  const canRedoOvertones = overtoneRedoRef.current.length > 0
 
   const resumeMediaAnchor = useCallback(async () => {
     const anchorAudio = mediaAnchorAudioRef.current
@@ -260,6 +341,12 @@ function App() {
   useEffect(() => {
     latestRuntimeConfigRef.current = runtimeConfig
   }, [runtimeConfig])
+
+  useEffect(() => {
+    overtoneUndoRef.current = []
+    overtoneRedoRef.current = []
+    setOvertoneHistoryVersion((value) => value + 1)
+  }, [activePresetId])
 
   useAudioEngine(runtimeConfig, playing)
   useMetronome({
@@ -703,11 +790,39 @@ function App() {
             </SectionCard>
           </div>
           <div className="space-y-4" role="tabpanel" id="panel-overtones" aria-labelledby="tab-overtones" hidden={activeTab !== 'overtones'}>
-            <SectionCard title="Overtone balance">
+            <SectionCard
+              title="Overtone balance"
+              rightSlot={
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                    onClick={undoOvertoneChange}
+                    aria-label="Undo overtone change"
+                    disabled={!canUndoOvertones}
+                  >
+                    <Undo2 size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                    onClick={redoOvertoneChange}
+                    aria-label="Redo overtone change"
+                    disabled={!canRedoOvertones}
+                  >
+                    <Redo2 size={16} />
+                  </button>
+                </div>
+              }
+            >
               <OvertoneBars
                 partials={partials}
                 onGainChange={setPartialGain}
-                onToggleEnabled={setPartialEnabled}
+                onGainDragStart={rememberOvertoneState}
+                onToggleEnabled={(partialId, enabled) => {
+                  rememberOvertoneState()
+                  setPartialEnabled(partialId, enabled)
+                }}
               />
             </SectionCard>
             <SectionCard title="Partials & timbre">
