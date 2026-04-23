@@ -1034,6 +1034,15 @@ function App() {
           <aside
             ref={sideMenuRef}
             className="fixed left-0 top-0 z-50 h-full w-[280px] border-r border-white/10 bg-[#1a1825] p-4 shadow-2xl"
+            onClick={(event) => {
+              const target = event.target as HTMLElement | null
+              const interactiveAncestor = target?.closest(
+                'button, a, input, select, textarea, [role="button"], [data-keep-menu-open]',
+              )
+              if (!interactiveAncestor) {
+                setMenuOpen(false)
+              }
+            }}
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Menu</h2>
