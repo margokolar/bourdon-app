@@ -16,9 +16,9 @@ export default defineConfig({
         navigateFallback: '/index.html',
       },
       manifest: {
-        name: 'Bourdon Drone',
-        short_name: 'Bourdon',
-        description: 'Professional bourdon / drone reference tool',
+        name: 'Drone',
+        short_name: 'Drone',
+        description: 'Professional drone reference tool',
         theme_color: '#141319',
         background_color: '#141319',
         display: 'standalone',
