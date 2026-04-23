@@ -664,7 +664,7 @@ function App() {
                 <div className="relative">
                   <button
                     type="button"
-                    className="flex min-h-[34px] items-center gap-1 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 transition hover:bg-white/10"
+                    className="flex min-h-[40px] items-center gap-2 rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/90 transition hover:bg-white/10"
                     onClick={() => setSongMenuOpen((current) => !current)}
                     aria-expanded={songMenuOpen}
                     aria-label="Open song list"
@@ -673,10 +673,10 @@ function App() {
                     <ChevronDown size={12} />
                   </button>
                   {songMenuOpen && (
-                    <div className="absolute right-0 z-40 mt-1 max-h-56 w-44 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-1 shadow-xl">
+                    <div className="absolute right-0 z-40 mt-1 max-h-64 w-56 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl">
                       <button
                         type="button"
-                        className="mb-1 block w-full rounded-md border border-fuchsia-300/40 bg-fuchsia-300/10 px-2 py-1.5 text-left text-xs text-fuchsia-100 transition hover:bg-fuchsia-300/20"
+                        className="mb-2 block min-h-[38px] w-full rounded-md border border-fuchsia-300/40 bg-fuchsia-300/10 px-3 py-2 text-left text-sm text-fuchsia-100 transition hover:bg-fuchsia-300/20"
                         onClick={() => {
                           const suggestedName = songName || 'My Song'
                           const inputName = window.prompt('Save current song as', suggestedName)
@@ -694,13 +694,13 @@ function App() {
                         return (
                           <div
                             key={song.id}
-                            className={`flex items-center gap-1 rounded-md px-1 py-1 ${
+                            className={`flex items-center gap-2 rounded-md px-1 py-1.5 ${
                               isActiveSong ? 'bg-fuchsia-300/20' : ''
                             }`}
                           >
                             <button
                               type="button"
-                              className={`min-w-0 flex-1 rounded px-1 py-1 text-left text-xs transition ${
+                              className={`min-w-0 flex-1 rounded px-2 py-1.5 text-left text-sm transition ${
                                 isActiveSong
                                   ? 'text-fuchsia-100'
                                   : 'text-white/80 hover:bg-white/10'
@@ -714,7 +714,7 @@ function App() {
                             </button>
                             <button
                               type="button"
-                              className="flex h-6 w-6 items-center justify-center rounded border border-red-300/40 bg-red-300/10 text-red-100 transition hover:bg-red-300/20 disabled:opacity-40"
+                              className="flex h-8 w-8 items-center justify-center rounded border border-red-300/40 bg-red-300/10 text-red-100 transition hover:bg-red-300/20 disabled:opacity-40"
                               aria-label={`Delete ${song.name}`}
                               disabled={songLibrary.length <= 1}
                               onClick={() => {
@@ -727,7 +727,7 @@ function App() {
                                 deleteSongFromLibrary(song.id)
                               }}
                             >
-                              <Trash2 size={12} />
+                              <Trash2 size={14} />
                             </button>
                           </div>
                         )
