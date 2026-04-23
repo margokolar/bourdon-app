@@ -553,7 +553,6 @@ function App() {
   }, [pauseMediaAnchor, playing, resumeMediaAnchor])
 
   const menuLabel = menuOpen ? 'Close menu' : 'Open menu'
-  const audioMenuActionLabel = playing ? 'Pause audio' : 'Play audio'
   return (
     <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
       <div className="mx-auto max-w-md px-3 py-5">
@@ -815,17 +814,6 @@ function App() {
               >
                 <Upload size={20} />
                 Save as new preset
-              </button>
-              <button
-                type="button"
-                className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
-                onClick={() => {
-                  handleTogglePlay()
-                  setMenuOpen(false)
-                }}
-              >
-                {(playing && <Pause size={20} />) || <Play size={20} />}
-                {audioMenuActionLabel}
               </button>
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/70">
                 <div className="mb-1 flex items-center gap-2 text-white/80">
