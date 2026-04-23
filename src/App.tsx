@@ -674,7 +674,7 @@ function App() {
           </div>
         </nav>
 
-        <main className="pb-6">
+        <main className="pb-24">
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
             <SectionCard title="Global controls">
               <div className="space-y-5">
@@ -831,38 +831,40 @@ function App() {
               />
             </SectionCard>
           </div>
-          <div className="sticky bottom-2 z-30 mt-4 rounded-xl border border-white/10 bg-[#111019]/90 p-2 backdrop-blur-sm">
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
-                onClick={selectPreviousPreset}
-                aria-label="Previous preset"
-              >
-                <StepBack size={22} />
-              </button>
-              <button
-                type="button"
-                className="button-safe flex min-h-[44px] min-w-0 flex-nowrap items-center justify-center gap-2 overflow-hidden rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
-                onClick={handleTogglePlay}
-                aria-label={playing ? 'Pause' : 'Play'}
-              >
-                {(playing && <Pause size={22} />) || <Play size={22} />}
-                <span className="inline-block w-14 text-center whitespace-nowrap">
-                  {playing ? 'Pause' : 'Play'}
-                </span>
-              </button>
-              <button
-                type="button"
-                className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
-                onClick={selectNextPreset}
-                aria-label="Next preset"
-              >
-                <StepForward size={22} />
-              </button>
-            </div>
-          </div>
         </main>
+      </div>
+      <div className="fixed bottom-2 left-0 right-0 z-30 px-3">
+        <div className="mx-auto max-w-md rounded-xl border border-white/10 bg-[#111019]/90 p-2 backdrop-blur-sm">
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+              onClick={selectPreviousPreset}
+              aria-label="Previous preset"
+            >
+              <StepBack size={22} />
+            </button>
+            <button
+              type="button"
+              className="button-safe flex min-h-[44px] min-w-0 flex-nowrap items-center justify-center gap-2 overflow-hidden rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
+              onClick={handleTogglePlay}
+              aria-label={playing ? 'Pause' : 'Play'}
+            >
+              {(playing && <Pause size={22} />) || <Play size={22} />}
+              <span className="inline-block w-14 text-center whitespace-nowrap">
+                {playing ? 'Pause' : 'Play'}
+              </span>
+            </button>
+            <button
+              type="button"
+              className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+              onClick={selectNextPreset}
+              aria-label="Next preset"
+            >
+              <StepForward size={22} />
+            </button>
+          </div>
+        </div>
       </div>
       {(menuOpen) && (
         <>
