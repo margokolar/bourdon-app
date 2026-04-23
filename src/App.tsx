@@ -132,6 +132,7 @@ function App() {
   const importSong = useDroneStore((state) => state.importSong)
   const loadSongFromLibrary = useDroneStore((state) => state.loadSongFromLibrary)
   const deleteSongFromLibrary = useDroneStore((state) => state.deleteSongFromLibrary)
+  const saveCurrentSongToLibrary = useDroneStore((state) => state.saveCurrentSongToLibrary)
   const selectNextPreset = useDroneStore((state) => state.selectNextPreset)
   const selectPreviousPreset = useDroneStore((state) => state.selectPreviousPreset)
 
@@ -673,6 +674,21 @@ function App() {
                   </button>
                   {songMenuOpen && (
                     <div className="absolute right-0 z-40 mt-1 max-h-56 w-44 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-1 shadow-xl">
+                      <button
+                        type="button"
+                        className="mb-1 block w-full rounded-md border border-fuchsia-300/40 bg-fuchsia-300/10 px-2 py-1.5 text-left text-xs text-fuchsia-100 transition hover:bg-fuchsia-300/20"
+                        onClick={() => {
+                          const suggestedName = songName || 'My Song'
+                          const inputName = window.prompt('Save current song as', suggestedName)
+                          if (inputName === null) {
+                            return
+                          }
+                          saveCurrentSongToLibrary(inputName)
+                          setSongMenuOpen(false)
+                        }}
+                      >
+                        Save current song
+                      </button>
                       {songLibrary.map((song) => {
                         const isActiveSong = song.name === songName
                         return (
