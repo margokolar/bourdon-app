@@ -107,6 +107,7 @@ function App() {
   const upPressTimeoutRef = useRef<number | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
   const songMenuRef = useRef<HTMLDivElement | null>(null)
+  const sideMenuRef = useRef<HTMLElement | null>(null)
   const overtoneUndoRef = useRef<PartialConfig[][]>([])
   const overtoneRedoRef = useRef<PartialConfig[][]>([])
   const [, setOvertoneHistoryVersion] = useState(0)
@@ -743,6 +744,26 @@ function App() {
     }
   }, [songMenuOpen])
 
+  useEffect(() => {
+    if (!menuOpen) {
+      return
+    }
+    const closeMenuOnOutsidePointer = (event: PointerEvent) => {
+      const menuElement = sideMenuRef.current
+      if (!menuElement) {
+        return
+      }
+      const target = event.target
+      if (target instanceof Node && !menuElement.contains(target)) {
+        setMenuOpen(false)
+      }
+    }
+    window.addEventListener('pointerdown', closeMenuOnOutsidePointer)
+    return () => {
+      window.removeEventListener('pointerdown', closeMenuOnOutsidePointer)
+    }
+  }, [menuOpen])
+
   const menuLabel = menuOpen ? 'Close menu' : 'Open menu'
   return (
     <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
@@ -1010,7 +1031,10 @@ function App() {
             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[1px]"
             onClick={() => setMenuOpen(false)}
           />
-          <aside className="fixed left-0 top-0 z-50 h-full w-[280px] border-r border-white/10 bg-[#1a1825] p-4 shadow-2xl">
+          <aside
+            ref={sideMenuRef}
+            className="fixed left-0 top-0 z-50 h-full w-[280px] border-r border-white/10 bg-[#1a1825] p-4 shadow-2xl"
+          >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Menu</h2>
               <button
