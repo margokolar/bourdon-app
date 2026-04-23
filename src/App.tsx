@@ -83,6 +83,9 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<TabId>('tone')
   const [songMenuOpen, setSongMenuOpen] = useState(false)
+  const [currentTime, setCurrentTime] = useState(() =>
+    new Date().toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' }),
+  )
   const mediaAnchorPrimedRef = useRef(false)
   const mediaAnchorAudioRef = useRef<HTMLAudioElement | null>(null)
   const upPressTimeoutRef = useRef<number | null>(null)
@@ -532,6 +535,13 @@ function App() {
   }, [playing, resumeMediaAnchor])
 
   useEffect(() => {
+    const timerId = window.setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' }))
+    }, 1000)
+    return () => window.clearInterval(timerId)
+  }, [])
+
+  useEffect(() => {
     if (!('mediaSession' in navigator)) {
       return
     }
@@ -629,7 +639,7 @@ function App() {
   return (
     <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
       <div className="mx-auto max-w-md px-3 py-5">
-        <header className="mb-4 flex items-center justify-between px-1">
+        <header className="mb-4 flex items-center gap-3 px-1">
           <button
             type="button"
             aria-label={menuLabel}
@@ -639,7 +649,7 @@ function App() {
             <Menu size={20} />
           </button>
           <h1 className="text-xl font-semibold tracking-wide">Drone</h1>
-          <div className="min-h-[44px] min-w-[44px]" />
+          <div className="ml-auto text-4xl font-extrabold leading-none text-fuchsia-100">{currentTime}</div>
         </header>
 
         <nav
