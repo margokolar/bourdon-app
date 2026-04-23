@@ -160,12 +160,12 @@ export function TopControls({
         </button>
         <button
           type="button"
-          className="button-safe flex min-h-[44px] min-w-0 flex-nowrap items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
+          className="button-safe flex min-h-[44px] min-w-0 flex-nowrap items-center justify-center gap-1.5 overflow-hidden rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-1.5 py-3 text-center text-sm font-semibold text-white transition hover:bg-fuchsia-300/25"
           onClick={onTogglePlay}
           aria-label={modeLabel}
         >
           <ToneIcon size={22} />
-          {modeLabel}
+          <span className="inline-block w-12 text-center whitespace-nowrap">{modeLabel}</span>
         </button>
         <button
           type="button"
