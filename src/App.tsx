@@ -106,6 +106,7 @@ function App() {
   const mediaAnchorAudioRef = useRef<HTMLAudioElement | null>(null)
   const upPressTimeoutRef = useRef<number | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
+  const songMenuRef = useRef<HTMLDivElement | null>(null)
   const overtoneUndoRef = useRef<PartialConfig[][]>([])
   const overtoneRedoRef = useRef<PartialConfig[][]>([])
   const [, setOvertoneHistoryVersion] = useState(0)
@@ -722,6 +723,26 @@ function App() {
     pauseMediaAnchor()
   }, [pauseMediaAnchor, playing, resumeMediaAnchor])
 
+  useEffect(() => {
+    if (!songMenuOpen) {
+      return
+    }
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      const container = songMenuRef.current
+      if (!container) {
+        return
+      }
+      const target = event.target
+      if (target instanceof Node && !container.contains(target)) {
+        setSongMenuOpen(false)
+      }
+    }
+    window.addEventListener('pointerdown', closeOnOutsidePointer)
+    return () => {
+      window.removeEventListener('pointerdown', closeOnOutsidePointer)
+    }
+  }, [songMenuOpen])
+
   const menuLabel = menuOpen ? 'Close menu' : 'Open menu'
   return (
     <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
@@ -854,7 +875,7 @@ function App() {
             <SectionCard
               title="Presets"
               rightSlot={
-                <div className="relative">
+                <div className="relative" ref={songMenuRef}>
                   <button
                     type="button"
                     className="flex min-h-[40px] items-center gap-2 rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/90 transition hover:bg-white/10"
