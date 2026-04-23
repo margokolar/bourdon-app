@@ -1,5 +1,5 @@
-import { ChevronDown, Info, Menu, Pause, Play, Save, StepBack, StepForward, Trash2, Upload, X } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronDown, Download, Info, Menu, Pause, Play, Save, StepBack, StepForward, Trash2, Upload, X } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { droneEngine } from './audio/DroneEngine'
 import type { DroneRuntimeConfig } from './audio/types'
 import { MetronomeControls } from './components/MetronomeControls'
@@ -13,6 +13,7 @@ import { TopControls } from './components/TopControls'
 import { useAudioEngine } from './hooks/useAudioEngine'
 import { useMetronome } from './hooks/useMetronome'
 import type { NoteId } from './music/notes'
+import type { Preset } from './presets/defaultPresets'
 import { useDroneStore } from './store/useDroneStore'
 
 type TabId = 'tone' | 'overtones' | 'metronome' | 'presets'
@@ -84,6 +85,7 @@ function App() {
   const mediaAnchorPrimedRef = useRef(false)
   const mediaAnchorAudioRef = useRef<HTMLAudioElement | null>(null)
   const upPressTimeoutRef = useRef<number | null>(null)
+  const importInputRef = useRef<HTMLInputElement | null>(null)
   const playing = useDroneStore((state) => state.playing)
   const activePresetId = useDroneStore((state) => state.activePresetId)
   const songName = useDroneStore((state) => state.songName)
@@ -154,6 +156,75 @@ function App() {
     }
     anchorAudio.pause()
   }, [])
+
+  const exportCurrentSong = useCallback(() => {
+    const inputName = window.prompt('Song name', songName) ?? ''
+    const resolvedName = inputName.trim() || songName || 'My Song'
+    const activePreset = presets.find((preset) => preset.id === activePresetId)
+    const payload = {
+      kind: 'bourdon-song',
+      version: 1,
+      name: resolvedName,
+      activePresetId,
+      activePresetName: activePreset?.name ?? null,
+      presetCount: presets.length,
+      presets,
+      exportedAt: new Date().toISOString(),
+    }
+    const safeName =
+      resolvedName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'song'
+    const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${safeName}.song.json`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }, [activePresetId, presets, songName])
+
+  const importSongs = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(event.target.files ?? [])
+      if (files.length === 0) {
+        return
+      }
+
+      let importedCount = 0
+      for (const file of files) {
+        try {
+          const content = await file.text()
+          const parsed = JSON.parse(content) as {
+            presets?: Preset[]
+            activePresetId?: string
+            name?: string
+          }
+          if (!Array.isArray(parsed.presets) || parsed.presets.length === 0) {
+            continue
+          }
+          importSong(parsed.presets, parsed.activePresetId, parsed.name)
+          importedCount += 1
+        } catch {
+          // Skip invalid files and continue with the rest.
+        }
+      }
+
+      if (importedCount === 0) {
+        window.alert('Could not import any selected song files.')
+      }
+
+      if (importInputRef.current) {
+        importInputRef.current.value = ''
+      }
+    },
+    [importSong],
+  )
 
   const handleTogglePlay = useCallback(() => {
     const currentlyPlaying = useDroneStore.getState().playing
@@ -740,7 +811,6 @@ function App() {
               <PresetList
                 presets={presets}
                 activePresetId={activePresetId}
-                songName={songName}
                 onLoadPreset={(presetId) => {
                   loadPreset(presetId)
                 }}
@@ -751,7 +821,6 @@ function App() {
                 onDuplicatePreset={duplicatePreset}
                 onDeletePreset={deletePreset}
                 onMovePreset={movePreset}
-                onImportSong={importSong}
               />
             </SectionCard>
           </div>
@@ -831,6 +900,28 @@ function App() {
                 <Upload size={20} />
                 Save as new preset
               </button>
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
+                onClick={() => {
+                  importInputRef.current?.click()
+                  setMenuOpen(false)
+                }}
+              >
+                <Download size={20} />
+                Import song
+              </button>
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
+                onClick={() => {
+                  exportCurrentSong()
+                  setMenuOpen(false)
+                }}
+              >
+                <Upload size={20} />
+                Export song
+              </button>
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/70">
                 <div className="mb-1 flex items-center gap-2 text-white/80">
                   <Info size={14} />
@@ -842,6 +933,16 @@ function App() {
           </aside>
         </>
       )}
+      <input
+        ref={importInputRef}
+        type="file"
+        multiple
+        accept=".json,.song.json,application/json"
+        className="hidden"
+        onChange={(event) => {
+          void importSongs(event)
+        }}
+      />
     </div>
   )
 }

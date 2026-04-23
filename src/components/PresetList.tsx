@@ -1,11 +1,10 @@
-import { ArrowDown, ArrowUp, Check, Copy, Download, Pencil, Plus, Save, Trash2, Upload } from 'lucide-react'
-import { useRef, useState, type ChangeEvent } from 'react'
+import { ArrowDown, ArrowUp, Check, Copy, Pencil, Plus, Save, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import type { Preset } from '../presets/defaultPresets'
 
 type PresetListProps = {
   presets: Preset[]
   activePresetId: string
-  songName: string
   onLoadPreset: (presetId: string) => void
   onSaveActivePreset: () => void
   onSaveAsPreset: () => void
@@ -14,13 +13,11 @@ type PresetListProps = {
   onDuplicatePreset: (presetId: string) => void
   onDeletePreset: (presetId: string) => void
   onMovePreset: (presetId: string, direction: 'up' | 'down') => void
-  onImportSong: (songPresets: Preset[], activePresetId?: string, songName?: string) => void
 }
 
 export function PresetList({
   presets,
   activePresetId,
-  songName: currentSongName,
   onLoadPreset,
   onSaveActivePreset,
   onSaveAsPreset,
@@ -29,80 +26,13 @@ export function PresetList({
   onDuplicatePreset,
   onDeletePreset,
   onMovePreset,
-  onImportSong,
 }: PresetListProps) {
   const [editingPresetId, setEditingPresetId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
-  const importInputRef = useRef<HTMLInputElement | null>(null)
-
-  const exportSong = () => {
-    const inputName = window.prompt('Song name', currentSongName) ?? ''
-    const songName = inputName.trim() || 'My Song'
-    const activePreset = presets.find((preset) => preset.id === activePresetId)
-    const payload = {
-      kind: 'bourdon-song',
-      version: 1,
-      name: songName,
-      activePresetId,
-      activePresetName: activePreset?.name ?? null,
-      presetCount: presets.length,
-      presets,
-      exportedAt: new Date().toISOString(),
-    }
-    const safeName = songName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'song'
-    const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], {
-      type: 'application/json',
-    })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${safeName}.song.json`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    URL.revokeObjectURL(url)
-  }
 
   const startEditing = (preset: Preset) => {
     setEditingPresetId(preset.id)
     setEditingName(preset.name)
-  }
-
-  const importSong = async (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? [])
-    if (files.length === 0) {
-      return
-    }
-
-    let importedCount = 0
-    for (const file of files) {
-      try {
-        const content = await file.text()
-        const parsed = JSON.parse(content) as {
-          presets?: Preset[]
-          activePresetId?: string
-          name?: string
-        }
-        if (!Array.isArray(parsed.presets) || parsed.presets.length === 0) {
-          continue
-        }
-        onImportSong(parsed.presets, parsed.activePresetId, parsed.name)
-        importedCount += 1
-      } catch {
-        // Skip invalid files and keep importing remaining selections.
-      }
-    }
-
-    if (importedCount === 0) {
-      window.alert('Could not import any selected song files.')
-    }
-
-    if (importInputRef.current) {
-      importInputRef.current.value = ''
-    }
   }
 
   const commitRename = (presetId: string) => {
@@ -140,32 +70,6 @@ export function PresetList({
             <Plus size={18} />
             New preset
           </button>
-          <button
-            type="button"
-            onClick={() => importInputRef.current?.click()}
-            className="button-safe flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            <Upload size={18} />
-            Import song
-          </button>
-          <button
-            type="button"
-            onClick={exportSong}
-            className="button-safe flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            <Download size={18} />
-            Save song
-          </button>
-          <input
-            ref={importInputRef}
-            type="file"
-          multiple
-            accept=".json,.song.json,application/json"
-            className="hidden"
-            onChange={(event) => {
-              void importSong(event)
-            }}
-          />
         </div>
       </div>
 
