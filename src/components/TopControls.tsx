@@ -1,17 +1,13 @@
-import { ChevronDown, Pause, Play, StepBack, StepForward } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { TONAL_CENTERS, type TonalCenter } from '../music/notes'
 import { TUNING_SYSTEMS, type TuningSystemId } from '../music/tuning'
 
 type TopControlsProps = {
-  playing: boolean
   referenceA4Hz: number
   baseOctave: number
   tuningSystemId: TuningSystemId
   tonalCenter: TonalCenter
   masterGainDb: number
-  onTogglePlay: () => void
-  onNextPreset: () => void
-  onPreviousPreset: () => void
   onReferenceNudge: (delta: number) => void
   onBaseOctaveNudge: (delta: number) => void
   onTuningSystemChange: (value: TuningSystemId) => void
@@ -20,24 +16,17 @@ type TopControlsProps = {
 }
 
 export function TopControls({
-  playing,
   referenceA4Hz,
   baseOctave,
   tuningSystemId,
   tonalCenter,
   masterGainDb,
-  onTogglePlay,
-  onNextPreset,
-  onPreviousPreset,
   onReferenceNudge,
   onBaseOctaveNudge,
   onTuningSystemChange,
   onTonalCenterChange,
   onMasterGainChange,
 }: TopControlsProps) {
-  const modeLabel = playing ? 'Pause' : 'Play'
-  const ToneIcon = playing ? Pause : Play
-
   const selectBaseClass =
     'min-h-[56px] w-full appearance-none rounded-xl border border-white/15 bg-white/5 px-3 py-3 pr-10 text-sm leading-tight text-white outline-none transition focus:border-fuchsia-300/60'
 
@@ -149,33 +138,6 @@ export function TopControls({
         <div className="mt-2 text-right text-xs tabular-nums text-white/70">{masterGainDb.toFixed(1)} dB</div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <button
-          type="button"
-          className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
-          onClick={onPreviousPreset}
-          aria-label="Previous preset"
-        >
-          <StepBack size={22} />
-        </button>
-        <button
-          type="button"
-          className="button-safe flex min-h-[44px] min-w-0 flex-nowrap items-center justify-center gap-2 overflow-hidden rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
-          onClick={onTogglePlay}
-          aria-label={modeLabel}
-        >
-          <ToneIcon size={22} />
-          <span className="inline-block w-14 text-center whitespace-nowrap">{modeLabel}</span>
-        </button>
-        <button
-          type="button"
-          className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
-          onClick={onNextPreset}
-          aria-label="Next preset"
-        >
-          <StepForward size={22} />
-        </button>
-      </div>
     </div>
   )
 }

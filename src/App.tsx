@@ -679,15 +679,11 @@ function App() {
             <SectionCard title="Global controls">
               <div className="space-y-5">
                 <TopControls
-                  playing={playing}
                   referenceA4Hz={referenceA4Hz}
                   baseOctave={baseOctave}
                   tuningSystemId={tuningSystemId}
                   tonalCenter={tonalCenter}
                   masterGainDb={masterGainDb}
-                  onTogglePlay={handleTogglePlay}
-                  onNextPreset={selectNextPreset}
-                  onPreviousPreset={selectPreviousPreset}
                   onReferenceNudge={nudgeReferenceA4Hz}
                   onBaseOctaveNudge={nudgeBaseOctave}
                   onTuningSystemChange={setTuningSystemId}
@@ -835,37 +831,37 @@ function App() {
               />
             </SectionCard>
           </div>
-          {activeTab !== 'tone' && (
-            <div className="sticky bottom-2 z-30 mt-4 rounded-xl border border-white/10 bg-[#111019]/90 p-2 backdrop-blur-sm">
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
-                  onClick={selectPreviousPreset}
-                  aria-label="Previous preset"
-                >
-                  <StepBack size={22} />
-                </button>
-                <button
-                  type="button"
-                  className="button-safe flex min-h-[44px] min-w-0 flex-wrap items-center justify-center gap-2 rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
-                  onClick={handleTogglePlay}
-                  aria-label={playing ? 'Pause' : 'Play'}
-                >
-                  {(playing && <Pause size={22} />) || <Play size={22} />}
+          <div className="sticky bottom-2 z-30 mt-4 rounded-xl border border-white/10 bg-[#111019]/90 p-2 backdrop-blur-sm">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+                onClick={selectPreviousPreset}
+                aria-label="Previous preset"
+              >
+                <StepBack size={22} />
+              </button>
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] min-w-0 flex-nowrap items-center justify-center gap-2 overflow-hidden rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
+                onClick={handleTogglePlay}
+                aria-label={playing ? 'Pause' : 'Play'}
+              >
+                {(playing && <Pause size={22} />) || <Play size={22} />}
+                <span className="inline-block w-14 text-center whitespace-nowrap">
                   {playing ? 'Pause' : 'Play'}
-                </button>
-                <button
-                  type="button"
-                  className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
-                  onClick={selectNextPreset}
-                  aria-label="Next preset"
-                >
-                  <StepForward size={22} />
-                </button>
-              </div>
+                </span>
+              </button>
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+                onClick={selectNextPreset}
+                aria-label="Next preset"
+              >
+                <StepForward size={22} />
+              </button>
             </div>
-          )}
+          </div>
         </main>
       </div>
       {(menuOpen) && (
