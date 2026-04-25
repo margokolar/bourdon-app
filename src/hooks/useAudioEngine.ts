@@ -32,6 +32,7 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
         return
       }
       void droneEngine.start(latestConfigRef.current)
+      void droneEngine.kickContext()
       void droneEngine.recoverIfStalled()
       if (!droneEngine.isContextRunning()) {
         void droneEngine.kickContext()

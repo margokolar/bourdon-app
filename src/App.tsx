@@ -605,6 +605,7 @@ function App() {
 
     const refreshPlaybackSession = () => {
       droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+      void droneEngine.kickContext()
       void droneEngine.recoverIfStalled()
       if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = 'playing'

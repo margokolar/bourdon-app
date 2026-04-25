@@ -73,6 +73,7 @@ export class DroneEngine {
    */
   ensureRunning(config: DroneRuntimeConfig): void {
     const context = this.ensureContext()
+    const contextState = context.state as AudioContextState | 'interrupted'
     if (context.state !== 'running') {
       void context
         .resume()
@@ -80,6 +81,9 @@ export class DroneEngine {
           // iOS can reject resume() while the page is still warming up; the
           // caller may retry on the next user gesture.
         })
+    }
+    if (contextState === 'interrupted') {
+      void this.kickContext()
     }
     this.started = true
     this.syncConfig(config, true)
