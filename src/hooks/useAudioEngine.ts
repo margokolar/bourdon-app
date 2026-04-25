@@ -16,6 +16,7 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
   useEffect(() => {
     if (playing) {
       void droneEngine.start(latestConfigRef.current)
+      void droneEngine.recoverIfStalled()
       return
     }
     droneEngine.stop()
@@ -31,6 +32,7 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
         return
       }
       void droneEngine.start(latestConfigRef.current)
+      void droneEngine.recoverIfStalled()
       if (!droneEngine.isContextRunning()) {
         void droneEngine.kickContext()
       }
@@ -42,9 +44,11 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
       }
     }
 
+    window.addEventListener('focus', retryStart)
     window.addEventListener('pageshow', retryStart)
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => {
+      window.removeEventListener('focus', retryStart)
       window.removeEventListener('pageshow', retryStart)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }

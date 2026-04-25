@@ -103,6 +103,29 @@ export class DroneEngine {
     }
   }
 
+  /**
+   * Detects the Safari/WebKit "running-but-muted" condition where the context
+   * reports running state but currentTime is effectively frozen after app
+   * resume. We probe clock progress and only kick when stalled.
+   */
+  async recoverIfStalled(): Promise<void> {
+    const context = this.context
+    if (!context || context.state !== 'running') {
+      return
+    }
+    const before = context.currentTime
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, 120)
+    })
+    if (this.context !== context || context.state !== 'running') {
+      return
+    }
+    const delta = context.currentTime - before
+    if (delta < 0.01) {
+      await this.kickContext()
+    }
+  }
+
   isContextRunning(): boolean {
     return this.context?.state === 'running'
   }

@@ -319,6 +319,7 @@ function App() {
       // Must run synchronously inside the user-gesture call stack so Safari
       // honours AudioContext.resume().
       droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+      void droneEngine.recoverIfStalled()
       void resumeMediaAnchor()
     }
     togglePlaying()
@@ -603,6 +604,8 @@ function App() {
     }
 
     const refreshPlaybackSession = () => {
+      droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+      void droneEngine.recoverIfStalled()
       if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = 'playing'
       }
@@ -658,6 +661,7 @@ function App() {
       // it, which is why the play action used to appear dead from a Bluetooth
       // controller while pause kept working.
       droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+      void droneEngine.recoverIfStalled()
       void resumeMediaAnchor()
       useDroneStore.getState().setPlaying(true)
       try {
