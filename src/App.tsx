@@ -1,7 +1,6 @@
 import {
   ChevronDown,
   Download,
-  Info,
   Menu,
   Pause,
   Play,
@@ -312,6 +311,11 @@ function App() {
     },
     [importSong],
   )
+
+  const openJblPortableApp = useCallback(() => {
+    // Best effort deep-link. Works only if JBL registers this URL scheme.
+    window.location.href = 'jblportable://'
+  }, [])
 
   const handleTogglePlay = useCallback(() => {
     const currentlyPlaying = useDroneStore.getState().playing
@@ -1106,13 +1110,17 @@ function App() {
                 Export song
               </button>
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/70">
-                <div className="mb-1 flex items-center gap-2 text-white/80">
-                  <Info size={14} />
-                  Drone v{APP_VERSION}
-                </div>
+                <div className="mb-1 text-white/80">Drone v{APP_VERSION}</div>
                 <p>Professional drone reference for tuning and intonation practice.</p>
                 <div className="mt-3 rounded-lg border border-white/10 bg-black/20 px-2.5 py-2 text-xs leading-relaxed text-white/70">
                   JBL aku iOS-is: vaata taset JBL appist (web/PWA kaudu ei ole akuinfo loetav).
+                  <button
+                    type="button"
+                    className="button-safe mt-2 w-full rounded-md border border-white/15 bg-white/5 px-3 py-2 text-left text-xs font-semibold text-white transition hover:bg-white/10"
+                    onClick={openJblPortableApp}
+                  >
+                    Ava JBL Portable
+                  </button>
                 </div>
               </div>
             </div>
