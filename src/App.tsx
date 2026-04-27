@@ -1111,6 +1111,9 @@ function App() {
                   Drone v{APP_VERSION}
                 </div>
                 <p>Professional drone reference for tuning and intonation practice.</p>
+                <div className="mt-3 rounded-lg border border-white/10 bg-black/20 px-2.5 py-2 text-xs leading-relaxed text-white/70">
+                  JBL aku iOS-is: vaata taset JBL appist (web/PWA kaudu ei ole akuinfo loetav).
+                </div>
               </div>
             </div>
           </aside>
