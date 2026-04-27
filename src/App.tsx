@@ -1,4 +1,5 @@
 import {
+  BatteryMedium,
   ChevronDown,
   Download,
   Info,
@@ -1115,6 +1116,7 @@ function App() {
                 className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
                 onClick={openJblPortableApp}
               >
+                <BatteryMedium size={20} />
                 Ava JBL Portable
               </button>
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/70">
