@@ -7,6 +7,7 @@ import {
   Pause,
   Play,
   Redo2,
+  RotateCcw,
   Save,
   StepBack,
   StepForward,
@@ -29,7 +30,7 @@ import { TopControls } from './components/TopControls'
 import { useAudioEngine } from './hooks/useAudioEngine'
 import { useMetronome } from './hooks/useMetronome'
 import type { NoteId } from './music/notes'
-import type { Preset } from './presets/defaultPresets'
+import { createDefaultPartials, type Preset } from './presets/defaultPresets'
 import { useDroneStore } from './store/useDroneStore'
 
 type TabId = 'tone' | 'overtones' | 'metronome' | 'presets'
@@ -313,6 +314,37 @@ function App() {
     },
     [importSong],
   )
+
+  const buildResetOvertoneBalance = useCallback((source: PartialConfig[]): PartialConfig[] => {
+    const defaults = createDefaultPartials()
+    return source.map((partial, index) => {
+      const fallback = defaults[Math.min(index, defaults.length - 1)]
+      if (!fallback) {
+        return partial
+      }
+      return {
+        ...partial,
+        ratio: fallback.ratio,
+        gainDb: fallback.gainDb,
+        enabled: fallback.enabled,
+      }
+    })
+  }, [])
+
+  const resetOvertoneBalance = useCallback(() => {
+    const current = useDroneStore.getState().partials
+    const resetTarget = buildResetOvertoneBalance(current)
+    if (samePartials(current, resetTarget)) {
+      return
+    }
+    rememberOvertoneState()
+    setPartials(resetTarget)
+  }, [buildResetOvertoneBalance, rememberOvertoneState, samePartials, setPartials])
+
+  const canResetOvertones = useMemo(() => {
+    const resetTarget = buildResetOvertoneBalance(partials)
+    return !samePartials(partials, resetTarget)
+  }, [buildResetOvertoneBalance, partials, samePartials])
 
   const openJblPortableApp = useCallback(() => {
     // Best effort deep-link. Works only if JBL registers this URL scheme.
@@ -847,6 +879,15 @@ function App() {
               title="Overtone balance"
               rightSlot={
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                    onClick={resetOvertoneBalance}
+                    aria-label="Reset overtone balance"
+                    disabled={!canResetOvertones}
+                  >
+                    <RotateCcw size={16} />
+                  </button>
                   <button
                     type="button"
                     className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
