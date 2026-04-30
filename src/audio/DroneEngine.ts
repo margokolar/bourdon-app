@@ -18,6 +18,7 @@ type ToneVoice = {
 
 const ATTACK_SECONDS = 0.08
 const RELEASE_SECONDS = 0.2
+const REBUILD_RELEASE_SECONDS = 0.03
 const PARAM_SMOOTH_SECONDS = 0.05
 const LIMITER_THRESHOLD_DB = -3
 
@@ -198,7 +199,9 @@ export class DroneEngine {
     const needsRebuild = forceRebuild || this.voiceNeedsRebuild(existing, config.partials)
 
     if (needsRebuild && existing) {
-      this.fadeAndStopVoice(existing, RELEASE_SECONDS)
+      // Keep rebuild crossfades short so rapid undo/reset cycles do not stack
+      // overlapping timbres from old and new overtone structures.
+      this.fadeAndStopVoice(existing, REBUILD_RELEASE_SECONDS)
       this.voiceMap.delete(toneConfig.noteId)
     }
 
