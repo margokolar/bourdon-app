@@ -111,7 +111,6 @@ function App() {
   const upPressTimeoutRef = useRef<number | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
   const overtoneAnalyzeInputRef = useRef<HTMLInputElement | null>(null)
-  const overtoneRecordInputRef = useRef<HTMLInputElement | null>(null)
   const songMenuRef = useRef<HTMLDivElement | null>(null)
   const sideMenuRef = useRef<HTMLElement | null>(null)
   const overtoneUndoRef = useRef<PartialConfig[][]>([])
@@ -390,6 +389,11 @@ function App() {
   const openJblPortableApp = useCallback(() => {
     // Best effort deep-link. Works only if JBL registers this URL scheme.
     window.location.href = 'jblportable://'
+  }, [])
+
+  const openVoiceMemosApp = useCallback(() => {
+    // Best effort deep-link on iOS; availability depends on OS behavior.
+    window.location.href = 'voicememos://'
   }, [])
 
   const handleTogglePlay = useCallback(() => {
@@ -1054,11 +1058,11 @@ function App() {
                   <button
                     type="button"
                     className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
-                    onClick={() => overtoneRecordInputRef.current?.click()}
-                    aria-label="Record audio for overtone analysis"
+                    onClick={openVoiceMemosApp}
+                    aria-label="Open Voice Memos"
                   >
                     <AudioWaveform size={16} />
-                    Record audio
+                    Open Voice Memos
                   </button>
                 </div>
               </div>
@@ -1329,16 +1333,6 @@ function App() {
         ref={overtoneAnalyzeInputRef}
         type="file"
         accept=".wav,.m4a,audio/wav,audio/x-wav,audio/mp4,audio/aac,audio/*"
-        className="hidden"
-        onChange={(event) => {
-          void analyzeOvertoneBalanceFromFile(event)
-        }}
-      />
-      <input
-        ref={overtoneRecordInputRef}
-        type="file"
-        accept="audio/*"
-        capture="user"
         className="hidden"
         onChange={(event) => {
           void analyzeOvertoneBalanceFromFile(event)
