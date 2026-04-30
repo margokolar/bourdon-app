@@ -943,7 +943,7 @@ function App() {
                 </button>
               </div>
             </SectionCard>
-            <SectionCard title="Global controls">
+            <SectionCard title="Global controls" className="[&>header]:mb-1">
               <div className="space-y-5">
                 <TopControls
                   referenceA4Hz={referenceA4Hz}
