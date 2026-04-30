@@ -39,7 +39,7 @@ export function TopControls({
             >
               {TUNING_SYSTEMS.map((option) => (
                 <option key={option.id} value={option.id} className="bg-[#1d1b2a]">
-                  {option.label}
+                  {option.id === 'just' ? 'Natural' : option.id === 'equal' ? 'Equal' : option.label}
                 </option>
               ))}
             </select>
