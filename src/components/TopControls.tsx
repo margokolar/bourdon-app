@@ -24,7 +24,7 @@ export function TopControls({
   onTonalCenterChange,
 }: TopControlsProps) {
   const selectBaseClass =
-    'min-h-[56px] w-full appearance-none rounded-xl border border-white/15 bg-white/5 px-3 py-3 pr-10 text-sm leading-tight text-white outline-none transition focus:border-fuchsia-300/60'
+    'min-h-[50px] w-full appearance-none rounded-xl border border-white/15 bg-white/5 px-3 py-2 pr-10 text-sm leading-tight text-white outline-none transition focus:border-fuchsia-300/60'
 
   return (
     <div className="space-y-4">
