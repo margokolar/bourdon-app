@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Check, Copy, Pencil, Plus, Save, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, Copy, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import type { Preset } from '../presets/defaultPresets'
 
@@ -6,9 +6,6 @@ type PresetListProps = {
   presets: Preset[]
   activePresetId: string
   onLoadPreset: (presetId: string) => void
-  onSaveActivePreset: () => void
-  onSaveAsPreset: () => void
-  onCreateNewPreset: () => void
   onRenamePreset: (presetId: string, name: string) => void
   onDuplicatePreset: (presetId: string) => void
   onDeletePreset: (presetId: string) => void
@@ -19,9 +16,6 @@ export function PresetList({
   presets,
   activePresetId,
   onLoadPreset,
-  onSaveActivePreset,
-  onSaveAsPreset,
-  onCreateNewPreset,
   onRenamePreset,
   onDuplicatePreset,
   onDeletePreset,

@@ -156,7 +156,6 @@ function App() {
   const setMetronomeVolumeDb = useDroneStore((state) => state.setMetronomeVolumeDb)
   const saveActivePreset = useDroneStore((state) => state.saveActivePreset)
   const saveAsPreset = useDroneStore((state) => state.saveAsPreset)
-  const createNewPreset = useDroneStore((state) => state.createNewPreset)
   const loadPreset = useDroneStore((state) => state.loadPreset)
   const renamePreset = useDroneStore((state) => state.renamePreset)
   const duplicatePreset = useDroneStore((state) => state.duplicatePreset)
@@ -1175,9 +1174,6 @@ function App() {
                 onLoadPreset={(presetId) => {
                   loadPreset(presetId)
                 }}
-                onSaveActivePreset={saveActivePreset}
-                onSaveAsPreset={saveAsPreset}
-                onCreateNewPreset={createNewPreset}
                 onRenamePreset={renamePreset}
                 onDuplicatePreset={duplicatePreset}
                 onDeletePreset={deletePreset}
