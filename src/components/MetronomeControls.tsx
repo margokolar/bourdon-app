@@ -21,7 +21,7 @@ export function MetronomeControls({
   onVolumeChange,
 }: MetronomeControlsProps) {
   let powerButtonClass =
-    'mx-auto flex h-16 w-16 items-center justify-center rounded-full border text-white shadow-sm transition'
+    'mx-auto mt-1 mb-4 flex h-16 w-16 items-center justify-center rounded-full border text-white shadow-sm transition'
   let ToneIcon = Play
   if (enabled) {
     powerButtonClass +=
