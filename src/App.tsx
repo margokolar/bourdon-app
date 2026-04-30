@@ -1070,7 +1070,7 @@ function App() {
             </SectionCard>
           </div>
           <div className="space-y-4" role="tabpanel" id="panel-metronome" aria-labelledby="tab-metronome" hidden={activeTab !== 'metronome'}>
-            <SectionCard title="Click">
+            <SectionCard title="Click" className="[&>header]:mb-1">
               <MetronomeControls
                 enabled={metronomeEnabled}
                 bpm={metronomeBpm}
