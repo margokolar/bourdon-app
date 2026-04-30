@@ -370,8 +370,8 @@ function App() {
             enabled: gainDb > -47.5,
           }
         })
-        rememberOvertoneState()
         setPartials(analyzed)
+        saveAsPreset()
       } catch {
         window.alert('Could not analyze overtone balance from this audio file.')
       } finally {
@@ -380,7 +380,7 @@ function App() {
         }
       }
     },
-    [partials.length, rememberOvertoneState, setPartials],
+    [partials.length, saveAsPreset, setPartials],
   )
 
   const openJblPortableApp = useCallback(() => {
@@ -886,14 +886,6 @@ function App() {
                 <button
                   type="button"
                   className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
-                  onClick={() => overtoneAnalyzeInputRef.current?.click()}
-                  aria-label="Analyze overtone balance from audio file"
-                >
-                  <AudioWaveform size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
                   onClick={saveActivePreset}
                   aria-label="Save current preset"
                 >
@@ -974,14 +966,6 @@ function App() {
                   <button
                     type="button"
                     className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
-                    onClick={() => overtoneAnalyzeInputRef.current?.click()}
-                    aria-label="Analyze overtone balance from audio file"
-                  >
-                    <AudioWaveform size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
                     onClick={saveActivePreset}
                     aria-label="Save current preset"
                   >
@@ -1026,6 +1010,17 @@ function App() {
                   setPartialEnabled(partialId, enabled)
                 }}
               />
+              <div className="mt-2 flex justify-end">
+                <button
+                  type="button"
+                  className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
+                  onClick={() => overtoneAnalyzeInputRef.current?.click()}
+                  aria-label="Analyze overtone balance from audio file"
+                >
+                  <AudioWaveform size={16} />
+                  Analyze WAV
+                </button>
+              </div>
             </SectionCard>
             <SectionCard title="Partials & timbre">
               <PartialEditor
