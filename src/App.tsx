@@ -1045,12 +1045,12 @@ function App() {
                     type="button"
                     className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
                     onClick={() => overtoneAnalyzeInputRef.current?.click()}
-                    aria-label="Analyze overtone balance from wav file"
+                    aria-label="Analyze overtone balance from audio source"
                   >
                     <AudioWaveform size={16} />
-                    Analyze WAV
+                    Analyze Audio
                   </button>
-                  <span className="text-[11px] text-white/55">Record with Voice Memos app.</span>
+                  <span className="text-[11px] text-white/55">Choose or capture a short Voice Memos clip.</span>
                 </div>
               </div>
             </SectionCard>
@@ -1319,7 +1319,7 @@ function App() {
       <input
         ref={overtoneAnalyzeInputRef}
         type="file"
-        accept=".wav,audio/wav,audio/x-wav"
+        accept=".wav,.m4a,audio/wav,audio/x-wav,audio/mp4,audio/aac,audio/*"
         className="hidden"
         onChange={(event) => {
           void analyzeOvertoneBalanceFromFile(event)
