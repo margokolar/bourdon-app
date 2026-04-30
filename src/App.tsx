@@ -928,20 +928,18 @@ function App() {
 
         <main className="pb-24 landscape:pb-2 max-h-[500px]:pb-2">
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
-            <SectionCard title="Current preset" className="p-1.5 [&>header]:mb-0.5 [&>header>h2]:text-[11px]">
-              <div className="flex items-center gap-2">
-                <div className="min-w-0 flex-1 truncate text-sm font-semibold text-white/90">
-                  {presets.find((preset) => preset.id === activePresetId)?.name ?? 'Preset'}
-                </div>
-                <button
-                  type="button"
-                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
-                  onClick={saveActivePreset}
-                  aria-label="Save active preset"
-                >
-                  <Save size={16} />
-                </button>
+            <SectionCard title="Current preset" className="relative p-1.5 pr-11 [&>header]:mb-0.5 [&>header>h2]:text-[11px]">
+              <div className="min-w-0 truncate text-sm font-semibold text-white/90">
+                {presets.find((preset) => preset.id === activePresetId)?.name ?? 'Preset'}
               </div>
+              <button
+                type="button"
+                className="button-safe absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
+                onClick={saveActivePreset}
+                aria-label="Save active preset"
+              >
+                <Save size={15} />
+              </button>
             </SectionCard>
             <SectionCard title="Global controls" className="[&>header]:mb-1">
               <div className="space-y-5">
