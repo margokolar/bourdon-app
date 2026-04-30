@@ -111,6 +111,7 @@ function App() {
   const upPressTimeoutRef = useRef<number | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
   const overtoneAnalyzeInputRef = useRef<HTMLInputElement | null>(null)
+  const overtoneRecordInputRef = useRef<HTMLInputElement | null>(null)
   const songMenuRef = useRef<HTMLDivElement | null>(null)
   const sideMenuRef = useRef<HTMLElement | null>(null)
   const overtoneUndoRef = useRef<PartialConfig[][]>([])
@@ -1040,17 +1041,25 @@ function App() {
                 }}
               />
               <div className="mt-2 flex justify-end">
-                <div className="flex flex-col items-end gap-1">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
                     onClick={() => overtoneAnalyzeInputRef.current?.click()}
-                    aria-label="Analyze overtone balance from audio source"
+                    aria-label="Choose audio file for overtone analysis"
                   >
                     <AudioWaveform size={16} />
-                    Analyze Audio
+                    Choose file
                   </button>
-                  <span className="text-[11px] text-white/55">Choose or capture a short Voice Memos clip.</span>
+                  <button
+                    type="button"
+                    className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
+                    onClick={() => overtoneRecordInputRef.current?.click()}
+                    aria-label="Record audio for overtone analysis"
+                  >
+                    <AudioWaveform size={16} />
+                    Record audio
+                  </button>
                 </div>
               </div>
             </SectionCard>
@@ -1320,6 +1329,16 @@ function App() {
         ref={overtoneAnalyzeInputRef}
         type="file"
         accept=".wav,.m4a,audio/wav,audio/x-wav,audio/mp4,audio/aac,audio/*"
+        className="hidden"
+        onChange={(event) => {
+          void analyzeOvertoneBalanceFromFile(event)
+        }}
+      />
+      <input
+        ref={overtoneRecordInputRef}
+        type="file"
+        accept="audio/*"
+        capture="user"
         className="hidden"
         onChange={(event) => {
           void analyzeOvertoneBalanceFromFile(event)
