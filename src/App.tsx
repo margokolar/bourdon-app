@@ -886,7 +886,7 @@ function App() {
           </div>
         </nav>
 
-        <main className="pb-24 landscape:pb-6">
+        <main className="pb-24 landscape:pb-2">
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
             <SectionCard title="Global controls">
               <div className="space-y-5">
@@ -1098,7 +1098,7 @@ function App() {
         </main>
       </div>
       <div className="fixed bottom-2 left-0 right-0 z-30 px-3">
-        <div className="mx-auto w-full max-w-md rounded-xl border border-white/10 bg-[#111019]/90 p-2 backdrop-blur-sm landscape:max-w-none md:max-w-5xl">
+        <div className="mx-auto w-full max-w-md rounded-xl border border-white/10 bg-[#111019] p-2 backdrop-blur-sm landscape:max-w-none md:max-w-5xl">
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
