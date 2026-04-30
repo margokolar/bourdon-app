@@ -1292,7 +1292,7 @@ function App() {
                 onClick={openJblPortableApp}
               >
                 <BatteryMedium size={20} />
-                Ava JBL Portable
+                Open JBL Portable
               </button>
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/70">
                 <div className="mb-1 flex items-center gap-2 text-white/80">
