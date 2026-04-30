@@ -85,8 +85,8 @@ export function MetronomeControls({
           onChange={(event) => onBpmChange(Number(event.target.value))}
           className="h-2 w-full accent-fuchsia-300"
         />
-        <div className="hide-scrollbar mt-3 overflow-x-auto">
-          <div className="flex min-w-max gap-2">
+        <div className="mt-3">
+          <div className="grid grid-cols-7 gap-2">
             {TEMPO_PRESETS.map((presetBpm) => {
               const isActive = Math.round(bpm) === presetBpm
               let presetClassName =
