@@ -829,7 +829,7 @@ function App() {
           className="sticky top-[76px] z-30 mb-3 overflow-x-auto rounded-xl border border-white/10 bg-[#111019]/90 p-1 backdrop-blur-sm landscape:top-2"
           aria-label="App sections"
         >
-          <div className="flex min-w-max gap-1">
+          <div className="flex min-w-max items-center gap-1">
             {TABS.map(({ id, label }) => (
               <button
                 key={id}
@@ -844,6 +844,45 @@ function App() {
                 {label}
               </button>
             ))}
+            {activeTab === 'overtones' && (
+              <div className="ml-2 hidden items-center gap-1.5 landscape:flex">
+                <button
+                  type="button"
+                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
+                  onClick={saveActivePreset}
+                  aria-label="Save current preset"
+                >
+                  <Save size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                  onClick={resetOvertoneBalance}
+                  aria-label="Reset overtone balance"
+                  disabled={!canResetOvertones}
+                >
+                  <RotateCcw size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                  onClick={undoOvertoneChange}
+                  aria-label="Undo overtone change"
+                  disabled={!canUndoOvertones}
+                >
+                  <Undo2 size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                  onClick={redoOvertoneChange}
+                  aria-label="Redo overtone change"
+                  disabled={!canRedoOvertones}
+                >
+                  <Redo2 size={16} />
+                </button>
+              </div>
+            )}
           </div>
         </nav>
 
@@ -879,7 +918,7 @@ function App() {
             <SectionCard
               title="Overtone balance"
               rightSlot={
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 landscape:hidden">
                   <button
                     type="button"
                     className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
