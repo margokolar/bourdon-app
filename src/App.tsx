@@ -934,7 +934,7 @@ function App() {
               </div>
               <button
                 type="button"
-                className="button-safe absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
+                className="button-safe absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
                 onClick={saveActivePreset}
                 aria-label="Save active preset"
               >
