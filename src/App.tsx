@@ -850,7 +850,11 @@ function App() {
 
   const menuLabel = menuOpen ? 'Close menu' : 'Open menu'
   return (
-    <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
+    <div
+      className={`relative min-h-screen bg-[#111019] text-[#f2f2f7] ${
+        activeTab === 'metronome' ? 'h-screen overflow-hidden' : ''
+      }`}
+    >
       <div className="mx-auto w-full max-w-md px-3 py-5 landscape:max-w-none max-h-[500px]:max-w-none md:max-w-5xl">
         <header className="sticky top-2 z-40 mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-[#111019]/90 px-3 py-2 backdrop-blur-sm landscape:hidden max-h-[500px]:hidden">
           <button
