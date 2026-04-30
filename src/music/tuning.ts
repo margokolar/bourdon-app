@@ -8,8 +8,8 @@ import {
 // versioonibump 2
 
 export const TUNING_SYSTEMS = [
-  { id: "equal", label: "Equal temperament" },
-  { id: "just", label: "Natural intonation" },
+  { id: "equal", label: "Equal" },
+  { id: "just", label: "Natural" },
 ] as const;
 
 export type TuningSystemId = (typeof TUNING_SYSTEMS)[number]["id"];
