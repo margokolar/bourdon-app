@@ -1040,15 +1040,18 @@ function App() {
                 }}
               />
               <div className="mt-2 flex justify-end">
-                <button
-                  type="button"
-                  className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
-                  onClick={() => overtoneAnalyzeInputRef.current?.click()}
-                  aria-label="Analyze overtone balance from audio file"
-                >
-                  <AudioWaveform size={16} />
-                  Analyze WAV
-                </button>
+                <div className="flex flex-col items-end gap-1">
+                  <button
+                    type="button"
+                    className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
+                    onClick={() => overtoneAnalyzeInputRef.current?.click()}
+                    aria-label="Analyze overtone balance from wav file"
+                  >
+                    <AudioWaveform size={16} />
+                    Analyze WAV
+                  </button>
+                  <span className="text-[11px] text-white/55">Record with Voice Memos app.</span>
+                </div>
               </div>
             </SectionCard>
             <SectionCard title="Partials & timbre">
@@ -1316,7 +1319,7 @@ function App() {
       <input
         ref={overtoneAnalyzeInputRef}
         type="file"
-        accept=".wav,audio/wav,audio/x-wav,audio/*"
+        accept=".wav,audio/wav,audio/x-wav"
         className="hidden"
         onChange={(event) => {
           void analyzeOvertoneBalanceFromFile(event)
