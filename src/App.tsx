@@ -1,4 +1,5 @@
 import {
+  AudioWaveform,
   BatteryMedium,
   ChevronDown,
   Download,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { droneEngine } from './audio/DroneEngine'
+import { analyzeWavOvertones } from './audio/overtoneAnalysis'
 import type { DroneRuntimeConfig, PartialConfig } from './audio/types'
 import { MetronomeControls } from './components/MetronomeControls'
 import { NoteSelector } from './components/NoteSelector'
@@ -108,6 +110,7 @@ function App() {
   const mediaAnchorAudioRef = useRef<HTMLAudioElement | null>(null)
   const upPressTimeoutRef = useRef<number | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
+  const overtoneAnalyzeInputRef = useRef<HTMLInputElement | null>(null)
   const songMenuRef = useRef<HTMLDivElement | null>(null)
   const sideMenuRef = useRef<HTMLElement | null>(null)
   const overtoneUndoRef = useRef<PartialConfig[][]>([])
@@ -345,6 +348,40 @@ function App() {
     const resetTarget = buildResetOvertoneBalance(partials)
     return !samePartials(partials, resetTarget)
   }, [buildResetOvertoneBalance, partials, samePartials])
+
+  const analyzeOvertoneBalanceFromFile = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      if (!file) {
+        return
+      }
+      try {
+        const analysis = await analyzeWavOvertones(file, partials.length)
+        const includeRatios = window.confirm(
+          'Include overtone ratio analysis too? Press Cancel to update only balance (gain/mute).',
+        )
+        const current = useDroneStore.getState().partials
+        const analyzed = current.map((partial, index) => {
+          const gainDb = analysis.gainsDb[index] ?? -48
+          return {
+            ...partial,
+            ratio: includeRatios ? (analysis.ratios[index] ?? partial.ratio) : partial.ratio,
+            gainDb,
+            enabled: gainDb > -47.5,
+          }
+        })
+        rememberOvertoneState()
+        setPartials(analyzed)
+      } catch {
+        window.alert('Could not analyze overtone balance from this audio file.')
+      } finally {
+        if (overtoneAnalyzeInputRef.current) {
+          overtoneAnalyzeInputRef.current.value = ''
+        }
+      }
+    },
+    [partials.length, rememberOvertoneState, setPartials],
+  )
 
   const openJblPortableApp = useCallback(() => {
     // Best effort deep-link. Works only if JBL registers this URL scheme.
@@ -849,6 +886,14 @@ function App() {
                 <button
                   type="button"
                   className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
+                  onClick={() => overtoneAnalyzeInputRef.current?.click()}
+                  aria-label="Analyze overtone balance from audio file"
+                >
+                  <AudioWaveform size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
                   onClick={saveActivePreset}
                   aria-label="Save current preset"
                 >
@@ -926,6 +971,14 @@ function App() {
               className="landscape:p-2 landscape:[&>header]:hidden max-h-[500px]:p-2 max-h-[500px]:[&>header]:hidden"
               rightSlot={
                 <div className="flex items-center gap-2 landscape:hidden max-h-[500px]:hidden">
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
+                    onClick={() => overtoneAnalyzeInputRef.current?.click()}
+                    aria-label="Analyze overtone balance from audio file"
+                  >
+                    <AudioWaveform size={16} />
+                  </button>
                   <button
                     type="button"
                     className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
@@ -1234,6 +1287,15 @@ function App() {
         className="hidden"
         onChange={(event) => {
           void importSongs(event)
+        }}
+      />
+      <input
+        ref={overtoneAnalyzeInputRef}
+        type="file"
+        accept=".wav,audio/wav,audio/x-wav,audio/*"
+        className="hidden"
+        onChange={(event) => {
+          void analyzeOvertoneBalanceFromFile(event)
         }}
       />
     </div>
