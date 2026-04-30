@@ -914,9 +914,16 @@ function App() {
               />
             </SectionCard>
           </div>
-          <div className="space-y-4" role="tabpanel" id="panel-overtones" aria-labelledby="tab-overtones" hidden={activeTab !== 'overtones'}>
+          <div
+            className="space-y-4 landscape:space-y-2"
+            role="tabpanel"
+            id="panel-overtones"
+            aria-labelledby="tab-overtones"
+            hidden={activeTab !== 'overtones'}
+          >
             <SectionCard
               title="Overtone balance"
+              className="landscape:p-2 landscape:[&>header]:hidden"
               rightSlot={
                 <div className="flex items-center gap-2 landscape:hidden">
                   <button

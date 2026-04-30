@@ -60,7 +60,7 @@ export function OvertoneBars({ partials, onGainChange, onToggleEnabled, onGainDr
   return (
     <div className="space-y-3">
       <div className="hide-scrollbar touch-pan-x overflow-x-auto">
-        <div className="grid min-w-[620px] grid-cols-16 gap-1">
+        <div className="grid min-w-[620px] grid-cols-16 gap-1 landscape:min-w-0 landscape:gap-0.5">
           {partials.map((partial, index) => {
             const isDragging = activePartialId === partial.id && dragGainDb !== null
             const gainDbForHeight = isDragging ? dragGainDb : partial.gainDb
@@ -78,7 +78,7 @@ export function OvertoneBars({ partials, onGainChange, onToggleEnabled, onGainDr
               <div key={partial.id} className="space-y-1">
                 <button
                   type="button"
-                  className={`relative h-44 w-full touch-none rounded-md border ${barClass}`}
+                  className={`relative h-44 w-full touch-none rounded-md border landscape:h-28 ${barClass}`}
                   onPointerDown={(event) => {
                     event.preventDefault()
                     event.currentTarget.setPointerCapture(event.pointerId)
@@ -118,7 +118,7 @@ export function OvertoneBars({ partials, onGainChange, onToggleEnabled, onGainDr
                 </button>
                 <button
                   type="button"
-                  className={`flex h-[35px] w-[35px] shrink-0 items-center justify-center self-center rounded border text-center text-xs tabular-nums ${chipClass}`}
+                  className={`flex h-[35px] w-[35px] shrink-0 items-center justify-center self-center rounded border text-center text-xs tabular-nums landscape:h-7 landscape:w-7 ${chipClass}`}
                   onClick={() => onToggleEnabled(partial.id, !partial.enabled)}
                   aria-label={`Toggle overtone ${index + 1}`}
                 >
