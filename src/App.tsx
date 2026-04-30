@@ -812,7 +812,7 @@ function App() {
   return (
     <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
       <div className="mx-auto max-w-md px-3 py-5">
-        <header className="mb-4 flex items-center gap-3 px-1">
+        <header className="sticky top-2 z-40 mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-[#111019]/90 px-3 py-2 backdrop-blur-sm">
           <button
             type="button"
             aria-label={menuLabel}
@@ -826,7 +826,7 @@ function App() {
         </header>
 
         <nav
-          className="sticky top-2 z-30 mb-3 overflow-x-auto rounded-xl border border-white/10 bg-[#111019]/90 p-1 backdrop-blur-sm"
+          className="sticky top-[76px] z-30 mb-3 overflow-x-auto rounded-xl border border-white/10 bg-[#111019]/90 p-1 backdrop-blur-sm"
           aria-label="App sections"
         >
           <div className="flex min-w-max gap-1">
