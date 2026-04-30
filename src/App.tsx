@@ -886,7 +886,7 @@ function App() {
           </div>
         </nav>
 
-        <main className="pb-24">
+        <main className="pb-24 landscape:pb-14">
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
             <SectionCard title="Global controls">
               <div className="space-y-5">
