@@ -7,12 +7,10 @@ type TopControlsProps = {
   baseOctave: number
   tuningSystemId: TuningSystemId
   tonalCenter: TonalCenter
-  masterGainDb: number
   onReferenceNudge: (delta: number) => void
   onBaseOctaveNudge: (delta: number) => void
   onTuningSystemChange: (value: TuningSystemId) => void
   onTonalCenterChange: (value: TonalCenter) => void
-  onMasterGainChange: (value: number) => void
 }
 
 export function TopControls({
@@ -20,12 +18,10 @@ export function TopControls({
   baseOctave,
   tuningSystemId,
   tonalCenter,
-  masterGainDb,
   onReferenceNudge,
   onBaseOctaveNudge,
   onTuningSystemChange,
   onTonalCenterChange,
-  onMasterGainChange,
 }: TopControlsProps) {
   const selectBaseClass =
     'min-h-[56px] w-full appearance-none rounded-xl border border-white/15 bg-white/5 px-3 py-3 pr-10 text-sm leading-tight text-white outline-none transition focus:border-fuchsia-300/60'
@@ -122,20 +118,6 @@ export function TopControls({
             </button>
           </div>
         </div>
-      </div>
-
-      <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-        <div className="mb-1 text-xs uppercase tracking-[0.16em] text-white/60">Master gain</div>
-        <input
-          type="range"
-          min={-30}
-          max={0}
-          step={0.1}
-          value={masterGainDb}
-          onChange={(event) => onMasterGainChange(Number(event.target.value))}
-          className="h-1.5 w-full accent-fuchsia-300"
-        />
-        <div className="mt-1 text-right text-xs tabular-nums text-white/70">{masterGainDb.toFixed(1)} dB</div>
       </div>
 
     </div>

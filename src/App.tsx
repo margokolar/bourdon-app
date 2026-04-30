@@ -950,14 +950,27 @@ function App() {
                   baseOctave={baseOctave}
                   tuningSystemId={tuningSystemId}
                   tonalCenter={tonalCenter}
-                  masterGainDb={masterGainDb}
                   onReferenceNudge={nudgeReferenceA4Hz}
                   onBaseOctaveNudge={nudgeBaseOctave}
                   onTuningSystemChange={setTuningSystemId}
                   onTonalCenterChange={setTonalCenter}
-                  onMasterGainChange={setMasterGainDb}
                 />
                 <NoteSelector tones={tones} onToggleTone={(noteId: NoteId) => toggleToneEnabled(noteId)} />
+                <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                  <div className="mb-1 text-xs uppercase tracking-[0.16em] text-white/60">Master gain</div>
+                  <input
+                    type="range"
+                    min={-30}
+                    max={0}
+                    step={0.1}
+                    value={masterGainDb}
+                    onChange={(event) => setMasterGainDb(Number(event.target.value))}
+                    className="h-1.5 w-full accent-fuchsia-300"
+                  />
+                  <div className="mt-1 text-right text-xs tabular-nums text-white/70">
+                    {masterGainDb.toFixed(1)} dB
+                  </div>
+                </div>
               </div>
             </SectionCard>
             <SectionCard title="Tone mixer">
