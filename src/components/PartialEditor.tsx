@@ -27,45 +27,59 @@ export function PartialEditor({
   onRemovePartial,
   onSetTimbreValue,
 }: PartialEditorProps) {
+  const morphFromBlend = (sine: number, saw: number, square: number): number => {
+    const total = Math.max(0, sine) + Math.max(0, saw) + Math.max(0, square)
+    if (total <= 0) {
+      return 0
+    }
+    return (Math.max(0, saw) * 0.5 + Math.max(0, square)) / total
+  }
+
+  const blendFromMorph = (morph: number): { sine: number; saw: number; square: number } => {
+    const clamped = Math.max(0, Math.min(1, morph))
+    if (clamped <= 0.5) {
+      const t = clamped / 0.5
+      return {
+        sine: 1 - t,
+        saw: t,
+        square: 0,
+      }
+    }
+    const t = (clamped - 0.5) / 0.5
+    return {
+      sine: 0,
+      saw: 1 - t,
+      square: t,
+    }
+  }
+
+  const timbreMorph = morphFromBlend(timbreBlend.sine, timbreBlend.saw, timbreBlend.square)
+
+  const applyMorph = (nextMorph: number) => {
+    const nextBlend = blendFromMorph(nextMorph)
+    onSetTimbreValue('sine', nextBlend.sine)
+    onSetTimbreValue('saw', nextBlend.saw)
+    onSetTimbreValue('square', nextBlend.square)
+  }
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
-        <label className="space-y-1 text-xs uppercase tracking-[0.14em] text-white/60">
-          Sine
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={timbreBlend.sine}
-            onChange={(event) => onSetTimbreValue('sine', Number(event.target.value))}
-            className="h-2 w-full accent-fuchsia-300"
-          />
-        </label>
-        <label className="space-y-1 text-xs uppercase tracking-[0.14em] text-white/60">
-          Saw
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={timbreBlend.saw}
-            onChange={(event) => onSetTimbreValue('saw', Number(event.target.value))}
-            className="h-2 w-full accent-fuchsia-300"
-          />
-        </label>
-        <label className="space-y-1 text-xs uppercase tracking-[0.14em] text-white/60">
-          Square
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={timbreBlend.square}
-            onChange={(event) => onSetTimbreValue('square', Number(event.target.value))}
-            className="h-2 w-full accent-fuchsia-300"
-          />
-        </label>
+      <div className="space-y-2 rounded-xl border border-white/10 bg-white/5 p-3">
+        <div className="flex items-center justify-between text-xs uppercase tracking-[0.14em] text-white/60">
+          <span>Sine</span>
+          <span>Saw</span>
+          <span>Square</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={timbreMorph}
+          onChange={(event) => applyMorph(Number(event.target.value))}
+          className="h-2 w-full accent-fuchsia-300"
+          aria-label="Timbre morph from sine to saw to square"
+        />
       </div>
 
       <div className="space-y-3">

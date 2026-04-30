@@ -485,6 +485,7 @@ function App() {
         if (!wasPlaying) {
           droneEngine.ensureRunning(latestRuntimeConfigRef.current)
         }
+        void resumeMediaAnchor()
         togglePlaying()
         return
       }
@@ -879,6 +880,14 @@ function App() {
               title="Overtone balance"
               rightSlot={
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
+                    onClick={saveActivePreset}
+                    aria-label="Save current preset"
+                  >
+                    <Save size={16} />
+                  </button>
                   <button
                     type="button"
                     className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
