@@ -391,11 +391,6 @@ function App() {
     window.location.href = 'jblportable://'
   }, [])
 
-  const openVoiceMemosApp = useCallback(() => {
-    // Best effort deep-link on iOS; availability depends on OS behavior.
-    window.location.href = 'voicememos://'
-  }, [])
-
   const handleTogglePlay = useCallback(() => {
     const currentlyPlaying = useDroneStore.getState().playing
     if (!currentlyPlaying) {
@@ -1045,7 +1040,7 @@ function App() {
                 }}
               />
               <div className="mt-2 flex justify-end">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                   <button
                     type="button"
                     className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
@@ -1053,16 +1048,7 @@ function App() {
                     aria-label="Choose audio file for overtone analysis"
                   >
                     <AudioWaveform size={16} />
-                    Choose file
-                  </button>
-                  <button
-                    type="button"
-                    className="button-safe flex min-h-[40px] items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85 transition hover:bg-white/10"
-                    onClick={openVoiceMemosApp}
-                    aria-label="Open Voice Memos"
-                  >
-                    <AudioWaveform size={16} />
-                    Open Voice Memos
+                    Analyse audio
                   </button>
                 </div>
               </div>
@@ -1332,7 +1318,7 @@ function App() {
       <input
         ref={overtoneAnalyzeInputRef}
         type="file"
-        accept=".wav,.m4a,audio/wav,audio/x-wav,audio/mp4,audio/aac,audio/*"
+        accept=".wav,.m4a,audio/wav,audio/x-wav,audio/mp4,audio/aac"
         className="hidden"
         onChange={(event) => {
           void analyzeOvertoneBalanceFromFile(event)
