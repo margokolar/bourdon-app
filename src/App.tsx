@@ -811,7 +811,7 @@ function App() {
   const menuLabel = menuOpen ? 'Close menu' : 'Open menu'
   return (
     <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
-      <div className="mx-auto max-w-md px-3 py-5">
+      <div className="mx-auto w-full max-w-md px-3 py-5 landscape:max-w-none md:max-w-5xl">
         <header className="sticky top-2 z-40 mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-[#111019]/90 px-3 py-2 backdrop-blur-sm">
           <button
             type="button"
@@ -1052,7 +1052,7 @@ function App() {
         </main>
       </div>
       <div className="fixed bottom-2 left-0 right-0 z-30 px-3">
-        <div className="mx-auto max-w-md rounded-xl border border-white/10 bg-[#111019]/90 p-2 backdrop-blur-sm">
+        <div className="mx-auto w-full max-w-md rounded-xl border border-white/10 bg-[#111019]/90 p-2 backdrop-blur-sm landscape:max-w-none md:max-w-5xl">
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
