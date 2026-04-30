@@ -812,7 +812,7 @@ function App() {
   return (
     <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
       <div className="mx-auto w-full max-w-md px-3 py-5 landscape:max-w-none md:max-w-5xl">
-        <header className="sticky top-2 z-40 mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-[#111019]/90 px-3 py-2 backdrop-blur-sm">
+        <header className="sticky top-2 z-40 mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-[#111019]/90 px-3 py-2 backdrop-blur-sm landscape:static">
           <button
             type="button"
             aria-label={menuLabel}
