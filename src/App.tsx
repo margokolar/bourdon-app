@@ -938,7 +938,7 @@ function App() {
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
             <SectionCard
               title="Current preset"
-              className="relative sticky top-[128px] z-20 p-1.5 pr-11 [&>header]:mb-0.5 [&>header>h2]:text-[11px] landscape:top-[48px] max-h-[500px]:top-[48px]"
+              className="relative sticky top-[128px] z-20 border-fuchsia-300/45 bg-fuchsia-300/14 p-1.5 pr-11 [&>header]:mb-0.5 [&>header>h2]:text-[11px] landscape:top-[48px] max-h-[500px]:top-[48px]"
             >
               <div className="min-w-0 truncate text-sm font-semibold text-white/90">
                 {presets.find((preset) => preset.id === activePresetId)?.name ?? 'Preset'}
