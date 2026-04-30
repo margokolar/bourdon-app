@@ -60,7 +60,7 @@ export function OvertoneBars({ partials, onGainChange, onToggleEnabled, onGainDr
   return (
     <div className="space-y-3">
       <div className="hide-scrollbar touch-pan-x overflow-x-auto">
-        <div className="grid min-w-[620px] grid-cols-16 gap-1 landscape:min-w-0 landscape:gap-0.5">
+        <div className="grid min-w-[620px] grid-cols-16 gap-1 landscape:min-w-0 landscape:w-full landscape:gap-0.5">
           {partials.map((partial, index) => {
             const isDragging = activePartialId === partial.id && dragGainDb !== null
             const gainDbForHeight = isDragging ? dragGainDb : partial.gainDb
