@@ -928,7 +928,7 @@ function App() {
 
         <main className="pb-24 landscape:pb-2 max-h-[500px]:pb-2">
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
-            <SectionCard title="Current preset" className="w-1/2 min-w-[180px] p-3">
+            <SectionCard title="Current preset" className="p-1.5 [&>header]:mb-0.5 [&>header>h2]:text-[11px]">
               <div className="flex items-center gap-2">
                 <div className="min-w-0 flex-1 truncate text-sm font-semibold text-white/90">
                   {presets.find((preset) => preset.id === activePresetId)?.name ?? 'Preset'}
