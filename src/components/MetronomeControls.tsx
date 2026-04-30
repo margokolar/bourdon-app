@@ -21,7 +21,7 @@ export function MetronomeControls({
   onVolumeChange,
 }: MetronomeControlsProps) {
   let powerButtonClass =
-    'mx-auto flex h-20 w-20 items-center justify-center rounded-full border text-white shadow-sm transition'
+    'mx-auto flex h-16 w-16 items-center justify-center rounded-full border text-white shadow-sm transition'
   let ToneIcon = Play
   if (enabled) {
     powerButtonClass +=
@@ -34,14 +34,14 @@ export function MetronomeControls({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <button
         type="button"
         className={powerButtonClass}
         onClick={() => onEnabledChange(!enabled)}
         aria-label={enabled ? 'Stop metronome' : 'Start metronome'}
       >
-        <ToneIcon size={34} />
+        <ToneIcon size={30} />
       </button>
 
       <div className="rounded-xl border border-white/10 bg-white/5 p-3">

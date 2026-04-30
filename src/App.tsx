@@ -930,7 +930,11 @@ function App() {
           </div>
         </nav>
 
-        <main className="pb-24 landscape:pb-2 max-h-[500px]:pb-2">
+        <main
+          className={`landscape:pb-2 max-h-[500px]:pb-2 ${
+            activeTab === 'metronome' ? 'pb-12' : 'pb-24'
+          }`}
+        >
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
             <SectionCard
               title="Current preset"
@@ -1074,7 +1078,7 @@ function App() {
             </SectionCard>
           </div>
           <div className="space-y-4" role="tabpanel" id="panel-metronome" aria-labelledby="tab-metronome" hidden={activeTab !== 'metronome'}>
-            <SectionCard title="Click" className="pt-2 [&>header]:mb-0">
+            <SectionCard title="Click" className="px-3 pb-3 pt-1.5 [&>header]:mb-0">
               <MetronomeControls
                 enabled={metronomeEnabled}
                 bpm={metronomeBpm}
