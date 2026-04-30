@@ -811,8 +811,8 @@ function App() {
   const menuLabel = menuOpen ? 'Close menu' : 'Open menu'
   return (
     <div className="relative min-h-screen bg-[#111019] text-[#f2f2f7]">
-      <div className="mx-auto w-full max-w-md px-3 py-5 landscape:max-w-none md:max-w-5xl">
-        <header className="sticky top-2 z-40 mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-[#111019]/90 px-3 py-2 backdrop-blur-sm landscape:hidden">
+      <div className="mx-auto w-full max-w-md px-3 py-5 landscape:max-w-none max-h-[500px]:max-w-none md:max-w-5xl">
+        <header className="sticky top-2 z-40 mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-[#111019]/90 px-3 py-2 backdrop-blur-sm landscape:hidden max-h-[500px]:hidden">
           <button
             type="button"
             aria-label={menuLabel}
@@ -826,7 +826,7 @@ function App() {
         </header>
 
         <nav
-          className="sticky top-[76px] z-30 mb-3 overflow-x-auto rounded-xl border border-white/10 bg-[#111019]/90 p-1 backdrop-blur-sm landscape:top-2"
+          className="sticky top-[76px] z-30 mb-3 overflow-x-auto rounded-xl border border-white/10 bg-[#111019]/90 p-1 backdrop-blur-sm landscape:top-2 max-h-[500px]:top-2"
           aria-label="App sections"
         >
           <div className="flex min-w-max items-center gap-1">
@@ -845,7 +845,7 @@ function App() {
               </button>
             ))}
             {activeTab === 'overtones' && (
-              <div className="ml-2 hidden items-center gap-1.5 landscape:flex">
+              <div className="ml-2 hidden items-center gap-1.5 landscape:flex max-h-[500px]:flex">
                 <button
                   type="button"
                   className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
@@ -886,7 +886,7 @@ function App() {
           </div>
         </nav>
 
-        <main className="pb-24 landscape:pb-2">
+        <main className="pb-24 landscape:pb-2 max-h-[500px]:pb-2">
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
             <SectionCard title="Global controls">
               <div className="space-y-5">
@@ -915,7 +915,7 @@ function App() {
             </SectionCard>
           </div>
           <div
-            className="space-y-4 landscape:space-y-2"
+            className="space-y-4 landscape:space-y-2 max-h-[500px]:space-y-2"
             role="tabpanel"
             id="panel-overtones"
             aria-labelledby="tab-overtones"
@@ -923,9 +923,9 @@ function App() {
           >
             <SectionCard
               title="Overtone balance"
-              className="landscape:p-2 landscape:[&>header]:hidden"
+              className="landscape:p-2 landscape:[&>header]:hidden max-h-[500px]:p-2 max-h-[500px]:[&>header]:hidden"
               rightSlot={
-                <div className="flex items-center gap-2 landscape:hidden">
+                <div className="flex items-center gap-2 landscape:hidden max-h-[500px]:hidden">
                   <button
                     type="button"
                     className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
@@ -1098,7 +1098,7 @@ function App() {
         </main>
       </div>
       <div className="fixed bottom-2 left-0 right-0 z-30 px-3">
-        <div className="mx-auto w-full max-w-md rounded-xl border border-white/10 bg-[#111019] p-2 backdrop-blur-sm landscape:max-w-none md:max-w-5xl">
+        <div className="mx-auto w-full max-w-md rounded-xl border border-white/10 bg-[#111019] p-2 backdrop-blur-sm landscape:max-w-none max-h-[500px]:max-w-none md:max-w-5xl">
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
