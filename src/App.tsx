@@ -360,6 +360,7 @@ function App() {
         const includeRatios = window.confirm(
           'Include overtone ratio analysis too? Press Cancel to update only balance (gain/mute).',
         )
+        const presetNameFromFile = file.name.replace(/\.[^/.]+$/, '').trim() || 'Analyzed WAV'
         const current = useDroneStore.getState().partials
         const analyzed = current.map((partial, index) => {
           const gainDb = analysis.gainsDb[index] ?? -48
@@ -372,6 +373,8 @@ function App() {
         })
         setPartials(analyzed)
         saveAsPreset()
+        const nextActivePresetId = useDroneStore.getState().activePresetId
+        renamePreset(nextActivePresetId, presetNameFromFile)
       } catch {
         window.alert('Could not analyze overtone balance from this audio file.')
       } finally {
@@ -380,7 +383,7 @@ function App() {
         }
       }
     },
-    [partials.length, saveAsPreset, setPartials],
+    [partials.length, renamePreset, saveAsPreset, setPartials],
   )
 
   const openJblPortableApp = useCallback(() => {
