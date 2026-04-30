@@ -40,8 +40,8 @@ type TabId = 'tone' | 'overtones' | 'metronome' | 'presets'
 const TABS: { id: TabId; label: string }[] = [
   { id: 'tone', label: 'Tone' },
   { id: 'overtones', label: 'Overtones' },
-  { id: 'metronome', label: 'Click' },
   { id: 'presets', label: 'Presets' },
+  { id: 'metronome', label: 'Click' },
 ]
 const APP_VERSION = '1.1'
 const MAX_OVERTONE_HISTORY = 60
