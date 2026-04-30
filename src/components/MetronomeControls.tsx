@@ -1,7 +1,7 @@
 import { Pause, Play } from 'lucide-react'
 import { NumericValueField } from './NumericValueField'
 
-const TEMPO_PRESETS = Array.from({ length: 13 }, (_, index) => 40 + index * 10)
+const TEMPO_PRESETS = Array.from({ length: 12 }, (_, index) => 40 + index * 10)
 
 type MetronomeControlsProps = {
   enabled: boolean
@@ -86,11 +86,11 @@ export function MetronomeControls({
           className="h-2 w-full accent-fuchsia-300"
         />
         <div className="mt-3">
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {TEMPO_PRESETS.map((presetBpm) => {
               const isActive = Math.round(bpm) === presetBpm
               let presetClassName =
-                'rounded-md border px-2 py-1 text-xs tabular-nums transition'
+                'min-h-[40px] rounded-md border px-2 py-2 text-sm tabular-nums transition'
               if (isActive) {
                 presetClassName +=
                   ' border-fuchsia-300/70 bg-fuchsia-300/25 text-fuchsia-50 shadow-[0_0_0_1px_rgba(245,158,255,0.25)]'
