@@ -34,10 +34,10 @@ export function OvertoneMidiPanel({
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-white/80">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/50">MIDI (overtones)</div>
+      <div className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/50">Overtones I/O</div>
       <p className="mb-3 text-xs leading-relaxed text-white/50">
-        Gain: CC 20–35, on/off: CC 40–55 (first 16 partials, 7-bit). Use Chrome or Edge on desktop; iOS/Safari
-        support is limited.
+        Maps to Overtones partial controls (first 16): gain CC 20–35, on/off CC 40–55 (7-bit). Use Chrome or Edge on
+        desktop; iOS/Safari support is limited.
       </p>
 
       {(!webMidiSupported) && (
