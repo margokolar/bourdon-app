@@ -24,6 +24,7 @@ import type { DroneRuntimeConfig, PartialConfig } from './audio/types'
 import { MetronomeControls } from './components/MetronomeControls'
 import { NoteSelector } from './components/NoteSelector'
 import { OvertoneBars } from './components/OvertoneBars'
+import { OvertoneMidiPanel } from './components/OvertoneMidiPanel'
 import { PartialEditor } from './components/PartialEditor'
 import { PresetList } from './components/PresetList'
 import { SectionCard } from './components/SectionCard'
@@ -31,6 +32,7 @@ import { ToneMixer } from './components/ToneMixer'
 import { TopControls } from './components/TopControls'
 import { useAudioEngine } from './hooks/useAudioEngine'
 import { useMetronome } from './hooks/useMetronome'
+import { useOvertoneMidi } from './hooks/useOvertoneMidi'
 import type { NoteId } from './music/notes'
 import { createDefaultPartials, type Preset } from './presets/defaultPresets'
 import { useDroneStore } from './store/useDroneStore'
@@ -167,6 +169,12 @@ function App() {
   const saveCurrentSongToLibrary = useDroneStore((state) => state.saveCurrentSongToLibrary)
   const selectNextPreset = useDroneStore((state) => state.selectNextPreset)
   const selectPreviousPreset = useDroneStore((state) => state.selectPreviousPreset)
+
+  const overtoneMidi = useOvertoneMidi({
+    partials,
+    setPartialGain,
+    setPartialEnabled,
+  })
 
   const clonePartials = useCallback(
     (source: PartialConfig[]) => source.map((partial) => ({ ...partial })),
@@ -997,6 +1005,19 @@ function App() {
             aria-labelledby="tab-overtones"
             hidden={activeTab !== 'overtones'}
           >
+            <OvertoneMidiPanel
+              webMidiSupported={overtoneMidi.webMidiSupported}
+              accessError={overtoneMidi.accessError}
+              settings={overtoneMidi.settings}
+              setEnabled={overtoneMidi.setEnabled}
+              setChannel={overtoneMidi.setChannel}
+              setInputId={overtoneMidi.setInputId}
+              setOutputId={overtoneMidi.setOutputId}
+              retryMidiAccess={overtoneMidi.retryMidiAccess}
+              sendSnapshot={overtoneMidi.sendSnapshot}
+              inputOptions={overtoneMidi.inputOptions}
+              outputOptions={overtoneMidi.outputOptions}
+            />
             <SectionCard
               title="Overtone balance"
               className="landscape:p-2 landscape:[&>header]:hidden max-h-[500px]:p-2 max-h-[500px]:[&>header]:hidden"
@@ -1042,11 +1063,11 @@ function App() {
             >
               <OvertoneBars
                 partials={partials}
-                onGainChange={setPartialGain}
+                onGainChange={overtoneMidi.onPartialGainFromUi}
                 onGainDragStart={rememberOvertoneState}
                 onToggleEnabled={(partialId, enabled) => {
                   rememberOvertoneState()
-                  setPartialEnabled(partialId, enabled)
+                  overtoneMidi.onPartialEnabledFromUi(partialId, enabled)
                 }}
               />
               <div className="mt-2 flex justify-end">
@@ -1067,9 +1088,9 @@ function App() {
               <PartialEditor
                 partials={partials}
                 timbreBlend={timbreBlend}
-                onSetPartialEnabled={setPartialEnabled}
+                onSetPartialEnabled={overtoneMidi.onPartialEnabledFromUi}
                 onSetPartialRatio={setPartialRatio}
-                onSetPartialGain={setPartialGain}
+                onSetPartialGain={overtoneMidi.onPartialGainFromUi}
                 onAddPartial={addPartial}
                 onRemovePartial={removePartial}
                 onSetTimbreValue={setTimbreValue}
