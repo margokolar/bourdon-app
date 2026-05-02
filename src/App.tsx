@@ -42,9 +42,9 @@ type TabId = 'tone' | 'overtones' | 'midi' | 'metronome' | 'presets'
 const TABS: { id: TabId; label: string }[] = [
   { id: 'tone', label: 'Tone' },
   { id: 'overtones', label: 'Overtones' },
-  { id: 'midi', label: 'MIDI' },
   { id: 'presets', label: 'Presets' },
   { id: 'metronome', label: 'Click' },
+  { id: 'midi', label: 'MIDI' },
 ]
 const APP_VERSION = '1.1'
 const MAX_OVERTONE_HISTORY = 60
@@ -1085,21 +1085,6 @@ function App() {
               />
             </SectionCard>
           </div>
-          <div className="space-y-4" role="tabpanel" id="panel-midi" aria-labelledby="tab-midi" hidden={activeTab !== 'midi'}>
-            <OvertoneMidiPanel
-              webMidiSupported={overtoneMidi.webMidiSupported}
-              accessError={overtoneMidi.accessError}
-              settings={overtoneMidi.settings}
-              setEnabled={overtoneMidi.setEnabled}
-              setChannel={overtoneMidi.setChannel}
-              setInputId={overtoneMidi.setInputId}
-              setOutputId={overtoneMidi.setOutputId}
-              retryMidiAccess={overtoneMidi.retryMidiAccess}
-              sendSnapshot={overtoneMidi.sendSnapshot}
-              inputOptions={overtoneMidi.inputOptions}
-              outputOptions={overtoneMidi.outputOptions}
-            />
-          </div>
           <div className="space-y-4" role="tabpanel" id="panel-metronome" aria-labelledby="tab-metronome" hidden={activeTab !== 'metronome'}>
             <SectionCard title="Click" className="px-3 pb-3 pt-1.5 [&>header]:mb-0">
               <MetronomeControls
@@ -1204,6 +1189,21 @@ function App() {
                 onMovePreset={movePreset}
               />
             </SectionCard>
+          </div>
+          <div className="space-y-4" role="tabpanel" id="panel-midi" aria-labelledby="tab-midi" hidden={activeTab !== 'midi'}>
+            <OvertoneMidiPanel
+              webMidiSupported={overtoneMidi.webMidiSupported}
+              accessError={overtoneMidi.accessError}
+              settings={overtoneMidi.settings}
+              setEnabled={overtoneMidi.setEnabled}
+              setChannel={overtoneMidi.setChannel}
+              setInputId={overtoneMidi.setInputId}
+              setOutputId={overtoneMidi.setOutputId}
+              retryMidiAccess={overtoneMidi.retryMidiAccess}
+              sendSnapshot={overtoneMidi.sendSnapshot}
+              inputOptions={overtoneMidi.inputOptions}
+              outputOptions={overtoneMidi.outputOptions}
+            />
           </div>
         </main>
       </div>
