@@ -118,7 +118,7 @@ export function OvertoneBars({ partials, onGainChange, onToggleEnabled, onGainDr
                 </button>
                 <button
                   type="button"
-                  className={`flex h-[35px] w-[35px] shrink-0 items-center justify-center self-center rounded border text-center text-xs tabular-nums landscape:h-7 landscape:w-7 max-h-[500px]:h-7 max-h-[500px]:w-7 ${chipClass}`}
+                  className={`flex h-[35px] w-full min-w-0 items-center justify-center rounded border text-center text-xs tabular-nums landscape:h-7 max-h-[500px]:h-7 ${chipClass}`}
                   onClick={() => onToggleEnabled(partial.id, !partial.enabled)}
                   aria-label={`Toggle overtone ${index + 1}`}
                 >
