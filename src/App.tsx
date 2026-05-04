@@ -257,6 +257,10 @@ function App() {
     anchorAudio.pause()
   }, [])
 
+  const nudgePlaybackAfterBackground = useCallback(() => {
+    void resumeMediaAnchor()
+  }, [resumeMediaAnchor])
+
   const exportCurrentSong = useCallback(() => {
     const inputName = window.prompt('Song name', songName) ?? ''
     const resolvedName = inputName.trim() || songName || 'My Song'
@@ -437,7 +441,7 @@ function App() {
     setOvertoneHistoryVersion((value) => value + 1)
   }, [activePresetId])
 
-  useAudioEngine(runtimeConfig, playing)
+  useAudioEngine(runtimeConfig, playing, nudgePlaybackAfterBackground)
   useMetronome({
     enabled: metronomeEnabled,
     bpm: metronomeBpm,
@@ -615,6 +619,8 @@ function App() {
         anchorAudioElement = new Audio(anchorObjectUrl)
         anchorAudioElement.loop = true
         anchorAudioElement.preload = 'auto'
+        anchorAudioElement.setAttribute('playsinline', '')
+        anchorAudioElement.setAttribute('webkit-playsinline', '')
         mediaAnchorAudioRef.current = anchorAudioElement
         await anchorAudioElement.play()
       } catch {

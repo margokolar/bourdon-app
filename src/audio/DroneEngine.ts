@@ -115,7 +115,21 @@ export class DroneEngine {
    */
   async recoverIfStalled(): Promise<void> {
     const context = this.context
-    if (!context || context.state !== 'running') {
+    if (!context) {
+      return
+    }
+    const extendedState = context.state as AudioContextState | 'interrupted'
+    if (extendedState === 'suspended' || extendedState === 'interrupted') {
+      try {
+        await context.resume()
+      } catch {
+        // iOS may reject until a gesture; visibility/focus retries will run again.
+      }
+      if ((context.state as string) === 'interrupted') {
+        await this.kickContext()
+      }
+    }
+    if (context.state !== 'running') {
       return
     }
     const before = context.currentTime

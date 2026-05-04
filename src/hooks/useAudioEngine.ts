@@ -2,7 +2,12 @@ import { useEffect, useRef } from 'react'
 import { droneEngine } from '../audio/DroneEngine'
 import type { DroneRuntimeConfig } from '../audio/types'
 
-export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): void {
+export function useAudioEngine(
+  config: DroneRuntimeConfig,
+  playing: boolean,
+  /** e.g. resume silent HTMLAudio anchor after iOS lock / background */
+  onResumeFromBackground?: () => void,
+): void {
   const latestConfigRef = useRef<DroneRuntimeConfig>(config)
 
   useEffect(() => {
@@ -15,12 +20,13 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
 
   useEffect(() => {
     if (playing) {
+      onResumeFromBackground?.()
       void droneEngine.start(latestConfigRef.current)
       void droneEngine.recoverIfStalled()
       return
     }
     droneEngine.stop()
-  }, [playing])
+  }, [onResumeFromBackground, playing])
 
   useEffect(() => {
     if (!playing) {
@@ -31,6 +37,7 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
       if (!playing) {
         return
       }
+      onResumeFromBackground?.()
       void droneEngine.start(latestConfigRef.current)
       void droneEngine.kickContext()
       void droneEngine.recoverIfStalled()
@@ -53,5 +60,5 @@ export function useAudioEngine(config: DroneRuntimeConfig, playing: boolean): vo
       window.removeEventListener('pageshow', retryStart)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [playing])
+  }, [onResumeFromBackground, playing])
 }
