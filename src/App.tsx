@@ -37,11 +37,12 @@ import type { NoteId } from './music/notes'
 import { createDefaultPartials, type Preset } from './presets/defaultPresets'
 import { useDroneStore } from './store/useDroneStore'
 
-type TabId = 'tone' | 'overtones' | 'midi' | 'metronome' | 'presets'
+type TabId = 'tone' | 'overtones' | 'presets' | 'metronome' | 'midi' | 'blank'
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'tone', label: 'Tone' },
   { id: 'overtones', label: 'Overtones' },
+  { id: 'blank', label: 'Blank' },
   { id: 'presets', label: 'Presets' },
   { id: 'metronome', label: 'Click' },
   { id: 'midi', label: 'MIDI' },
@@ -1211,9 +1212,11 @@ function App() {
               outputOptions={overtoneMidi.outputOptions}
             />
           </div>
+          <div className="space-y-4" role="tabpanel" id="panel-blank" aria-labelledby="tab-blank" hidden={activeTab !== 'blank'} />
         </main>
       </div>
-      <div className="fixed bottom-2 left-0 right-0 z-30 px-3">
+      {activeTab !== 'blank' && (
+        <div className="fixed bottom-2 left-0 right-0 z-30 px-3">
         <div className="mx-auto w-full max-w-md rounded-xl border border-white/10 bg-[#111019] p-2 backdrop-blur-sm landscape:max-w-none max-h-[500px]:max-w-none md:max-w-5xl">
           <div className="grid grid-cols-3 gap-2">
             <button
@@ -1245,7 +1248,8 @@ function App() {
             </button>
           </div>
         </div>
-      </div>
+        </div>
+      )}
       {(menuOpen) && (
         <>
           <button
