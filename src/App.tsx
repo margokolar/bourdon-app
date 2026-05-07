@@ -441,6 +441,17 @@ function App() {
       }
     }
 
+    // iOS only registers the page as a media session owner after metadata is
+    // set, so populate it before attaching action handlers.
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'Drone',
+        artist: 'Drone App',
+      })
+    } catch {
+      // Some browsers reject MediaMetadata before user gesture; ignore.
+    }
+
     setActionHandler('play', () => {
       droneEngine.ensureRunning(latestRuntimeConfigRef.current)
       useDroneStore.getState().setPlaying(true)
@@ -477,13 +488,37 @@ function App() {
   // iOS PWA needs an actively playing media element for the OS to route
   // Bluetooth play/next/prev to our MediaSession handlers, even while the
   // synth itself is paused. We keep a silent looping <audio> alive once the
-  // user has interacted with the page.
+  // user has interacted with the page. A trivial data-URL WAV is too short
+  // for iOS to recognise, so we generate a real 1 s silent PCM blob.
   useEffect(() => {
-    const SILENT_WAV_DATA_URL =
-      'data:audio/wav;base64,UklGRkQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
+    const sampleRate = 8000
+    const numSamples = sampleRate
+    const buffer = new ArrayBuffer(44 + numSamples * 2)
+    const view = new DataView(buffer)
+    const writeString = (offset: number, str: string) => {
+      for (let i = 0; i < str.length; i += 1) {
+        view.setUint8(offset + i, str.charCodeAt(i))
+      }
+    }
+    writeString(0, 'RIFF')
+    view.setUint32(4, 36 + numSamples * 2, true)
+    writeString(8, 'WAVE')
+    writeString(12, 'fmt ')
+    view.setUint32(16, 16, true)
+    view.setUint16(20, 1, true)
+    view.setUint16(22, 1, true)
+    view.setUint32(24, sampleRate, true)
+    view.setUint32(28, sampleRate * 2, true)
+    view.setUint16(32, 2, true)
+    view.setUint16(34, 16, true)
+    writeString(36, 'data')
+    view.setUint32(40, numSamples * 2, true)
+
+    const silentBlob = new Blob([buffer], { type: 'audio/wav' })
+    const silentUrl = URL.createObjectURL(silentBlob)
 
     const anchor = document.createElement('audio')
-    anchor.src = SILENT_WAV_DATA_URL
+    anchor.src = silentUrl
     anchor.loop = true
     anchor.preload = 'auto'
     anchor.setAttribute('playsinline', '')
@@ -495,7 +530,7 @@ function App() {
     const startAnchor = () => {
       if (anchor.paused) {
         void anchor.play().catch(() => {
-          // iOS can reject before a user gesture; the listeners below retry.
+          // iOS can reject before a user gesture; gesture listeners retry.
         })
       }
     }
@@ -506,17 +541,20 @@ function App() {
 
     window.addEventListener('pointerdown', startAnchor, { passive: true })
     window.addEventListener('keydown', startAnchor)
+    window.addEventListener('touchend', startAnchor, { passive: true })
     window.addEventListener('focus', startAnchor)
     window.addEventListener('pageshow', startAnchor)
 
     return () => {
       window.removeEventListener('pointerdown', startAnchor)
       window.removeEventListener('keydown', startAnchor)
+      window.removeEventListener('touchend', startAnchor)
       window.removeEventListener('focus', startAnchor)
       window.removeEventListener('pageshow', startAnchor)
       anchor.pause()
       anchor.removeAttribute('src')
       anchor.load()
+      URL.revokeObjectURL(silentUrl)
       mediaAnchorRef.current = null
     }
   }, [])
