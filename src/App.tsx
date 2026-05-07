@@ -801,8 +801,7 @@ function App() {
       pauseMediaAnchor()
       useDroneStore.getState().setPlaying(false)
       try {
-        // Keep ownership on lock screen; iOS may otherwise hand control back to Music.
-        navigator.mediaSession.playbackState = 'playing'
+        navigator.mediaSession.playbackState = 'paused'
       } catch {
         // Ignore; the next render will update playbackState anyway.
       }
@@ -842,10 +841,7 @@ function App() {
       return
     }
     try {
-      // Intentionally keep "playing" while our silent anchor is active so lock-screen
-      // controls remain routed to Drone after longer pauses.
-      const hasAnchor = mediaAnchorPrimedRef.current
-      navigator.mediaSession.playbackState = playing || hasAnchor ? 'playing' : 'paused'
+      navigator.mediaSession.playbackState = playing ? 'playing' : 'paused'
     } catch {
       // Ignore browsers that reject the write.
     }
