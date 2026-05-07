@@ -87,7 +87,7 @@ export class DroneEngine {
       void this.kickContext()
     }
     this.started = true
-    this.syncConfig(config, true)
+    this.syncConfig(config, this.voiceMap.size === 0)
   }
 
   /**
@@ -157,10 +157,8 @@ export class DroneEngine {
     this.masterGain.gain.cancelScheduledValues(now)
     this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now)
     this.masterGain.gain.linearRampToValueAtTime(0.0001, now + RELEASE_SECONDS)
-    for (const tone of this.voiceMap.values()) {
-      this.fadeAndStopVoice(tone, RELEASE_SECONDS)
-    }
-    this.voiceMap.clear()
+    // Soft-pause: keep oscillators alive behind the muted master gain so
+    // Bluetooth/lock-screen resume can become audible immediately.
     this.started = false
   }
 
@@ -196,6 +194,10 @@ export class DroneEngine {
 
   destroy(): void {
     this.stop()
+    for (const tone of this.voiceMap.values()) {
+      this.fadeAndStopVoice(tone, 0.01)
+    }
+    this.voiceMap.clear()
     if (this.context) {
       void this.context.close()
     }
