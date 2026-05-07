@@ -16,10 +16,10 @@ type ToneVoice = {
   oscillators: OscBundle[]
 }
 
-const ATTACK_SECONDS = 0.08
-const RELEASE_SECONDS = 0.2
+const ATTACK_SECONDS = 0.025
+const RELEASE_SECONDS = 0.08
 const REBUILD_RELEASE_SECONDS = 0.03
-const PARAM_SMOOTH_SECONDS = 0.05
+const PARAM_SMOOTH_SECONDS = 0.015
 const LIMITER_THRESHOLD_DB = -3
 
 export class DroneEngine {
