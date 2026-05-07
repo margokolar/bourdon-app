@@ -582,6 +582,13 @@ function App() {
       }
       if (mediaKey === 'MediaPause') {
         event.preventDefault()
+        const wasPlaying = useDroneStore.getState().playing
+        if (!wasPlaying) {
+          droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+          void resumeMediaAnchor()
+          setPlaying(true)
+          return
+        }
         setPlaying(false)
       }
     }
@@ -798,10 +805,25 @@ function App() {
       }
     })
     setActionHandler('pause', () => {
+      const wasPlaying = useDroneStore.getState().playing
+      if (!wasPlaying) {
+        droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+        void droneEngine.recoverIfStalled()
+        void resumeMediaAnchor()
+        useDroneStore.getState().setPlaying(true)
+        try {
+          navigator.mediaSession.playbackState = 'playing'
+        } catch {
+          // Ignore; the next render will update playbackState anyway.
+        }
+        return
+      }
       pauseMediaAnchor()
       useDroneStore.getState().setPlaying(false)
       try {
-        navigator.mediaSession.playbackState = 'paused'
+        // Keep lock-screen ownership on Drone. Some iOS Bluetooth speakers emit
+        // "pause" instead of "play" while the OS still sees our silent anchor.
+        navigator.mediaSession.playbackState = 'playing'
       } catch {
         // Ignore; the next render will update playbackState anyway.
       }
@@ -841,7 +863,10 @@ function App() {
       return
     }
     try {
-      navigator.mediaSession.playbackState = playing ? 'playing' : 'paused'
+      // Keep Drone as the lock-screen media owner while the silent anchor is
+      // alive. Incoming "pause" commands are toggled back to play above.
+      const hasAnchor = mediaAnchorPrimedRef.current
+      navigator.mediaSession.playbackState = playing || hasAnchor ? 'playing' : 'paused'
     } catch {
       // Ignore browsers that reject the write.
     }
