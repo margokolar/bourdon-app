@@ -259,8 +259,10 @@ function App() {
     }
     // Keep the silent anchor alive so iOS lock-screen / BT remotes keep routing
     // media actions back to this app even after a longer pause.
-    anchorAudio.muted = true
-    anchorAudio.volume = 0
+    // Do not mute or set volume=0: iOS may stop treating muted media as the
+    // active lock-screen owner. The WAV itself is digital silence.
+    anchorAudio.muted = false
+    anchorAudio.volume = 1
     if (anchorAudio.paused) {
       void anchorAudio.play().catch(() => {
         // iOS can still reject in background; visibility/focus retries handle it.
@@ -650,8 +652,10 @@ function App() {
         anchorAudioElement.preload = 'auto'
         anchorAudioElement.setAttribute('playsinline', '')
         anchorAudioElement.setAttribute('webkit-playsinline', '')
-        anchorAudioElement.muted = true
-        anchorAudioElement.volume = 0
+        // Keep this unmuted at full volume so iOS treats it as active media.
+        // The WAV data is silent, so it should remain inaudible.
+        anchorAudioElement.muted = false
+        anchorAudioElement.volume = 1
         mediaAnchorAudioRef.current = anchorAudioElement
         const restoreIfUnexpectedPause = () => {
           if (!useDroneStore.getState().playing) {
