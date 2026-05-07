@@ -116,6 +116,7 @@ function App() {
   const overtoneAnalyzeInputRef = useRef<HTMLInputElement | null>(null)
   const songMenuRef = useRef<HTMLDivElement | null>(null)
   const sideMenuRef = useRef<HTMLElement | null>(null)
+  const mediaAnchorRef = useRef<HTMLAudioElement | null>(null)
   const overtoneUndoRef = useRef<PartialConfig[][]>([])
   const overtoneRedoRef = useRef<PartialConfig[][]>([])
   const [, setOvertoneHistoryVersion] = useState(0)
@@ -472,6 +473,53 @@ function App() {
       // Ignore browsers that reject the write.
     }
   }, [playing])
+
+  // iOS PWA needs an actively playing media element for the OS to route
+  // Bluetooth play/next/prev to our MediaSession handlers, even while the
+  // synth itself is paused. We keep a silent looping <audio> alive once the
+  // user has interacted with the page.
+  useEffect(() => {
+    const SILENT_WAV_DATA_URL =
+      'data:audio/wav;base64,UklGRkQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
+
+    const anchor = document.createElement('audio')
+    anchor.src = SILENT_WAV_DATA_URL
+    anchor.loop = true
+    anchor.preload = 'auto'
+    anchor.setAttribute('playsinline', '')
+    anchor.setAttribute('webkit-playsinline', '')
+    anchor.muted = false
+    anchor.volume = 1
+    mediaAnchorRef.current = anchor
+
+    const startAnchor = () => {
+      if (anchor.paused) {
+        void anchor.play().catch(() => {
+          // iOS can reject before a user gesture; the listeners below retry.
+        })
+      }
+    }
+
+    void anchor.play().catch(() => {
+      // First call usually fails before user gesture; gesture listeners cover it.
+    })
+
+    window.addEventListener('pointerdown', startAnchor, { passive: true })
+    window.addEventListener('keydown', startAnchor)
+    window.addEventListener('focus', startAnchor)
+    window.addEventListener('pageshow', startAnchor)
+
+    return () => {
+      window.removeEventListener('pointerdown', startAnchor)
+      window.removeEventListener('keydown', startAnchor)
+      window.removeEventListener('focus', startAnchor)
+      window.removeEventListener('pageshow', startAnchor)
+      anchor.pause()
+      anchor.removeAttribute('src')
+      anchor.load()
+      mediaAnchorRef.current = null
+    }
+  }, [])
 
   useEffect(() => {
     const navigatorWithAudioSession = navigator as Navigator & {
