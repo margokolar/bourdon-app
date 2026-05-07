@@ -254,13 +254,18 @@ function App() {
 
   const pauseMediaAnchor = useCallback(() => {
     const anchorAudio = mediaAnchorAudioRef.current
-    if (!anchorAudio || anchorAudio.paused) {
+    if (!anchorAudio) {
       return
     }
     // Keep the silent anchor alive so iOS lock-screen / BT remotes keep routing
     // media actions back to this app even after a longer pause.
     anchorAudio.muted = true
     anchorAudio.volume = 0
+    if (anchorAudio.paused) {
+      void anchorAudio.play().catch(() => {
+        // iOS can still reject in background; visibility/focus retries handle it.
+      })
+    }
   }, [])
 
   const nudgePlaybackAfterBackground = useCallback(() => {
@@ -861,6 +866,17 @@ function App() {
     }
     pauseMediaAnchor()
   }, [pauseMediaAnchor, playing, resumeMediaAnchor])
+
+  useEffect(() => {
+    if (playing) {
+      return
+    }
+    const intervalId = window.setInterval(() => {
+      keepPlaybackSessionAlive()
+      pauseMediaAnchor()
+    }, 20000)
+    return () => window.clearInterval(intervalId)
+  }, [keepPlaybackSessionAlive, pauseMediaAnchor, playing])
 
   useEffect(() => {
     if (!songMenuOpen) {
