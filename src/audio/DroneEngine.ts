@@ -25,9 +25,6 @@ const LIMITER_THRESHOLD_DB = -3
 export class DroneEngine {
   private context: AudioContext | null = null
   private masterGain: GainNode | null = null
-  private keepAliveGain: GainNode | null = null
-  private keepAliveOscillator: OscillatorNode | null = null
-  private keepAliveEnabled = false
   private voiceMap = new Map<string, ToneVoice>()
   private started = false
 
@@ -37,8 +34,6 @@ export class DroneEngine {
     }
     const context = new AudioContext()
     const masterGain = context.createGain()
-    const keepAliveGain = context.createGain()
-    const keepAliveOscillator = context.createOscillator()
     const lowPass = context.createBiquadFilter()
     const limiter = context.createDynamicsCompressor()
     lowPass.type = 'lowpass'
@@ -50,29 +45,12 @@ export class DroneEngine {
     limiter.attack.value = 0.003
     limiter.release.value = 0.1
     masterGain.gain.value = 0.0001
-    // Near-inaudible oscillator used only to keep iOS media session ownership
-    // alive across longer pauses / lock-screen transitions.
-    keepAliveOscillator.type = 'sine'
-    keepAliveOscillator.frequency.value = 35
-    keepAliveGain.gain.value = 0.000001
-    keepAliveOscillator.connect(keepAliveGain)
-    keepAliveGain.connect(limiter)
-    keepAliveOscillator.start()
     masterGain.connect(lowPass)
     lowPass.connect(limiter)
     limiter.connect(context.destination)
     this.context = context
     this.masterGain = masterGain
-    this.keepAliveGain = keepAliveGain
-    this.keepAliveOscillator = keepAliveOscillator
-    this.applyKeepAliveState()
     return context
-  }
-
-  setSessionKeepAlive(enabled: boolean): void {
-    this.keepAliveEnabled = enabled
-    this.ensureContext()
-    this.applyKeepAliveState()
   }
 
   async start(config: DroneRuntimeConfig): Promise<void> {
@@ -218,31 +196,11 @@ export class DroneEngine {
 
   destroy(): void {
     this.stop()
-    if (this.keepAliveOscillator) {
-      try {
-        this.keepAliveOscillator.stop()
-      } catch {
-        // Already stopped/closed.
-      }
-    }
     if (this.context) {
       void this.context.close()
     }
     this.context = null
     this.masterGain = null
-    this.keepAliveGain = null
-    this.keepAliveOscillator = null
-  }
-
-  private applyKeepAliveState(): void {
-    if (!this.context || !this.keepAliveGain) {
-      return
-    }
-    const now = this.context.currentTime
-    const target = this.keepAliveEnabled ? 0.000015 : 0.000001
-    this.keepAliveGain.gain.cancelScheduledValues(now)
-    this.keepAliveGain.gain.setValueAtTime(this.keepAliveGain.gain.value, now)
-    this.keepAliveGain.gain.linearRampToValueAtTime(target, now + 0.08)
   }
 
   private upsertVoice(
