@@ -1215,22 +1215,11 @@ function App() {
                 type="button"
                 className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
                 onClick={() => {
-                  saveActivePreset()
-                  setMenuOpen(false)
-                }}
-              >
-                <Save size={20} />
-                Save active preset
-              </button>
-              <button
-                type="button"
-                className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
-                onClick={() => {
                   saveAsPreset()
                   setMenuOpen(false)
                 }}
               >
-                <Upload size={20} />
+                <Save size={20} />
                 Save as new preset
               </button>
               <button
