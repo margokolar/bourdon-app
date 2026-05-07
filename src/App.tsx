@@ -42,10 +42,9 @@ type TabId = 'tone' | 'overtones' | 'presets' | 'metronome' | 'midi' | 'blank'
 const TABS: { id: TabId; label: string }[] = [
   { id: 'tone', label: 'Tone' },
   { id: 'overtones', label: 'Overtones' },
-  { id: 'blank', label: 'Blank' },
   { id: 'presets', label: 'Presets' },
+  { id: 'blank', label: 'Blank' },
   { id: 'metronome', label: 'Click' },
-  { id: 'midi', label: 'MIDI' },
 ]
 const APP_VERSION = '1.1'
 const MAX_OVERTONE_HISTORY = 60
@@ -255,12 +254,26 @@ function App() {
     if (!anchorAudio || anchorAudio.paused) {
       return
     }
-    anchorAudio.pause()
+    // Keep the silent anchor alive so iOS lock-screen / BT remotes keep routing
+    // media actions back to this app even after a longer pause.
+    anchorAudio.muted = true
+    anchorAudio.volume = 0
   }, [])
 
   const nudgePlaybackAfterBackground = useCallback(() => {
     void resumeMediaAnchor()
   }, [resumeMediaAnchor])
+
+  const keepPlaybackSessionAlive = useCallback(() => {
+    if (!('mediaSession' in navigator)) {
+      return
+    }
+    try {
+      navigator.mediaSession.playbackState = useDroneStore.getState().playing ? 'playing' : 'paused'
+    } catch {
+      // Ignore browsers that reject the write.
+    }
+  }, [])
 
   const exportCurrentSong = useCallback(() => {
     const inputName = window.prompt('Song name', songName) ?? ''
@@ -622,7 +635,18 @@ function App() {
         anchorAudioElement.preload = 'auto'
         anchorAudioElement.setAttribute('playsinline', '')
         anchorAudioElement.setAttribute('webkit-playsinline', '')
+        anchorAudioElement.muted = true
+        anchorAudioElement.volume = 0
         mediaAnchorAudioRef.current = anchorAudioElement
+        const restoreIfUnexpectedPause = () => {
+          if (!useDroneStore.getState().playing) {
+            return
+          }
+          void resumeMediaAnchor()
+          keepPlaybackSessionAlive()
+        }
+        anchorAudioElement.addEventListener('pause', restoreIfUnexpectedPause)
+        anchorAudioElement.addEventListener('ended', restoreIfUnexpectedPause)
         await anchorAudioElement.play()
       } catch {
         mediaAnchorPrimedRef.current = false
@@ -668,7 +692,7 @@ function App() {
       mediaAnchorPrimedRef.current = false
       mediaAnchorAudioRef.current = null
     }
-  }, [])
+  }, [keepPlaybackSessionAlive, resumeMediaAnchor])
 
   useEffect(() => {
     if (!isIosStandalone()) {
@@ -814,6 +838,18 @@ function App() {
       // Ignore browsers that reject the write.
     }
   }, [playing])
+
+  useEffect(() => {
+    if (!playing) {
+      return
+    }
+    const intervalId = window.setInterval(() => {
+      keepPlaybackSessionAlive()
+      void droneEngine.recoverIfStalled()
+      void resumeMediaAnchor()
+    }, 15000)
+    return () => window.clearInterval(intervalId)
+  }, [keepPlaybackSessionAlive, playing, resumeMediaAnchor])
 
   useEffect(() => {
     if (playing) {
@@ -1334,6 +1370,17 @@ function App() {
               >
                 <BatteryMedium size={20} />
                 Open JBL Portable
+              </button>
+              <button
+                type="button"
+                className="button-safe flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10"
+                onClick={() => {
+                  setActiveTab('midi')
+                  setMenuOpen(false)
+                }}
+              >
+                <Menu size={20} />
+                MIDI
               </button>
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/70">
                 <div className="mb-1 flex items-center gap-2 text-white/80">
