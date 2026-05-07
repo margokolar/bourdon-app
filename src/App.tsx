@@ -580,7 +580,9 @@ function App() {
         droneEngine.ensureRunning(latestRuntimeConfigRef.current)
         setPlaying(true)
         void resumeMediaAnchor()
-        void droneEngine.recoverIfStalled()
+        window.setTimeout(() => {
+          void droneEngine.recoverIfStalled()
+        }, 500)
         return
       }
       if (mediaKey === 'MediaPause') {
@@ -802,7 +804,9 @@ function App() {
       droneEngine.ensureRunning(latestRuntimeConfigRef.current)
       useDroneStore.getState().setPlaying(true)
       void resumeMediaAnchor()
-      void droneEngine.recoverIfStalled()
+      window.setTimeout(() => {
+        void droneEngine.recoverIfStalled()
+      }, 500)
       try {
         navigator.mediaSession.playbackState = 'playing'
       } catch {
@@ -815,7 +819,9 @@ function App() {
         droneEngine.ensureRunning(latestRuntimeConfigRef.current)
         useDroneStore.getState().setPlaying(true)
         void resumeMediaAnchor()
-        void droneEngine.recoverIfStalled()
+        window.setTimeout(() => {
+          void droneEngine.recoverIfStalled()
+        }, 500)
         try {
           navigator.mediaSession.playbackState = 'playing'
         } catch {

@@ -22,11 +22,26 @@ export function useAudioEngine(
     if (playing) {
       onResumeFromBackground?.()
       void droneEngine.start(latestConfigRef.current)
-      void droneEngine.recoverIfStalled()
-      return
+      const recoveryTimerId = window.setTimeout(() => {
+        void droneEngine.recoverIfStalled()
+      }, 500)
+      return () => window.clearTimeout(recoveryTimerId)
     }
     droneEngine.stop()
   }, [onResumeFromBackground, playing])
+
+  useEffect(() => {
+    if (!playing) {
+      return
+    }
+
+    const warmClockTimerId = window.setTimeout(() => {
+      if (droneEngine.isContextRunning()) {
+        droneEngine.syncConfig(latestConfigRef.current, false)
+      }
+    }, 40)
+    return () => window.clearTimeout(warmClockTimerId)
+  }, [playing])
 
   useEffect(() => {
     if (!playing) {
