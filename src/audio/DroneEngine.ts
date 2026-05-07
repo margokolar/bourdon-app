@@ -90,6 +90,16 @@ export class DroneEngine {
     this.syncConfig(config, this.voiceMap.size === 0)
   }
 
+  fastResume(config: DroneRuntimeConfig): void {
+    this.ensureRunning(config)
+    if (!this.context || !this.masterGain) {
+      return
+    }
+    const now = this.context.currentTime
+    this.masterGain.gain.cancelScheduledValues(now)
+    this.masterGain.gain.setValueAtTime(dbToGain(config.masterGainDb), now)
+  }
+
   /**
    * Force a suspend/resume cycle. Fixes the documented WebKit bug where the
    * AudioContext reports "running" but the hardware clock is stalled after the

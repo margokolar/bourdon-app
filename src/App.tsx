@@ -577,7 +577,7 @@ function App() {
       }
       if (mediaKey === 'MediaPlay') {
         event.preventDefault()
-        droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+        droneEngine.fastResume(latestRuntimeConfigRef.current)
         setPlaying(true)
         void resumeMediaAnchor()
         window.setTimeout(() => {
@@ -589,7 +589,7 @@ function App() {
         event.preventDefault()
         const wasPlaying = useDroneStore.getState().playing
         if (!wasPlaying) {
-          droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+          droneEngine.fastResume(latestRuntimeConfigRef.current)
           void resumeMediaAnchor()
           setPlaying(true)
           return
@@ -820,7 +820,7 @@ function App() {
       // body of this handler. Any `await` before AudioContext.resume() loses
       // it, which is why the play action used to appear dead from a Bluetooth
       // controller while pause kept working.
-      droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+      droneEngine.fastResume(latestRuntimeConfigRef.current)
       useDroneStore.getState().setPlaying(true)
       void resumeMediaAnchor()
       window.setTimeout(() => {
@@ -835,7 +835,7 @@ function App() {
     setActionHandler('pause', () => {
       const wasPlaying = useDroneStore.getState().playing
       if (!wasPlaying) {
-        droneEngine.ensureRunning(latestRuntimeConfigRef.current)
+        droneEngine.fastResume(latestRuntimeConfigRef.current)
         useDroneStore.getState().setPlaying(true)
         void resumeMediaAnchor()
         window.setTimeout(() => {
