@@ -486,10 +486,10 @@ function App() {
   }, [playing])
 
   // iOS PWA needs an actively playing media element for the OS to route
-  // Bluetooth play/next/prev to our MediaSession handlers, even while the
-  // synth itself is paused. We keep a silent looping <audio> alive once the
-  // user has interacted with the page. A trivial data-URL WAV is too short
-  // for iOS to recognise, so we generate a real 1 s silent PCM blob.
+  // Bluetooth controls to our MediaSession handlers. We keep a silent
+  // looping <audio> primed and play it in lock-step with the synth so iOS
+  // sees an accurate playing/paused state and dispatches the right action
+  // (play vs. pause) when a Bluetooth button is pressed.
   useEffect(() => {
     const sampleRate = 8000
     const numSamples = sampleRate
@@ -527,30 +527,24 @@ function App() {
     anchor.volume = 1
     mediaAnchorRef.current = anchor
 
-    const startAnchor = () => {
-      if (anchor.paused) {
-        void anchor.play().catch(() => {
-          // iOS can reject before a user gesture; gesture listeners retry.
+    const primeAnchor = () => {
+      // Touch the element on a user gesture so iOS unlocks future play()
+      // calls, but only keep it actively playing when the synth is too.
+      if (!useDroneStore.getState().playing) {
+        void anchor.play().then(() => anchor.pause()).catch(() => {
+          // iOS can reject before a user gesture; later gestures retry.
         })
       }
     }
 
-    void anchor.play().catch(() => {
-      // First call usually fails before user gesture; gesture listeners cover it.
-    })
-
-    window.addEventListener('pointerdown', startAnchor, { passive: true })
-    window.addEventListener('keydown', startAnchor)
-    window.addEventListener('touchend', startAnchor, { passive: true })
-    window.addEventListener('focus', startAnchor)
-    window.addEventListener('pageshow', startAnchor)
+    window.addEventListener('pointerdown', primeAnchor, { passive: true })
+    window.addEventListener('keydown', primeAnchor)
+    window.addEventListener('touchend', primeAnchor, { passive: true })
 
     return () => {
-      window.removeEventListener('pointerdown', startAnchor)
-      window.removeEventListener('keydown', startAnchor)
-      window.removeEventListener('touchend', startAnchor)
-      window.removeEventListener('focus', startAnchor)
-      window.removeEventListener('pageshow', startAnchor)
+      window.removeEventListener('pointerdown', primeAnchor)
+      window.removeEventListener('keydown', primeAnchor)
+      window.removeEventListener('touchend', primeAnchor)
       anchor.pause()
       anchor.removeAttribute('src')
       anchor.load()
@@ -558,6 +552,24 @@ function App() {
       mediaAnchorRef.current = null
     }
   }, [])
+
+  // Mirror the Drone playing state onto the silent anchor so iOS reports
+  // the correct playbackState to the lock-screen and Bluetooth controllers.
+  useEffect(() => {
+    const anchor = mediaAnchorRef.current
+    if (!anchor) {
+      return
+    }
+    if (playing) {
+      if (anchor.paused) {
+        void anchor.play().catch(() => {
+          // iOS sometimes rejects play() outside a gesture; not fatal.
+        })
+      }
+    } else if (!anchor.paused) {
+      anchor.pause()
+    }
+  }, [playing])
 
   useEffect(() => {
     const navigatorWithAudioSession = navigator as Navigator & {
