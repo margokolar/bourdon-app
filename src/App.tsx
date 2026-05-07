@@ -36,6 +36,7 @@ import { useAudioEngine } from './hooks/useAudioEngine'
 import { useMetronome } from './hooks/useMetronome'
 import { useOvertoneMidi } from './hooks/useOvertoneMidi'
 import type { NoteId } from './music/notes'
+import { getFrequency } from './music/tuning'
 import { createDefaultPartials, type Preset } from './presets/defaultPresets'
 import { useDroneStore } from './store/useDroneStore'
 
@@ -145,7 +146,6 @@ function App() {
   const setTonalCenter = useDroneStore((state) => state.setTonalCenter)
   const setMasterGainDb = useDroneStore((state) => state.setMasterGainDb)
   const toggleToneEnabled = useDroneStore((state) => state.toggleToneEnabled)
-  const setToneEnabled = useDroneStore((state) => state.setToneEnabled)
   const setToneGain = useDroneStore((state) => state.setToneGain)
   const setTonePan = useDroneStore((state) => state.setTonePan)
   const setPartialEnabled = useDroneStore((state) => state.setPartialEnabled)
@@ -393,6 +393,25 @@ function App() {
   }, [togglePlaying])
 
   const activeTones = useMemo(() => tones.filter((tone) => tone.enabled), [tones])
+  const partialReferenceFrequencyHz = useMemo(() => {
+    const sourceTones = activeTones.length > 0 ? activeTones : tones
+    if (sourceTones.length === 0) {
+      return null
+    }
+    const sum = sourceTones.reduce((acc, tone) => {
+      return (
+        acc +
+        getFrequency(
+          tone.noteId,
+          tuningSystemId,
+          tonalCenter,
+          referenceA4Hz,
+          baseOctave,
+        )
+      )
+    }, 0)
+    return sum / sourceTones.length
+  }, [activeTones, baseOctave, referenceA4Hz, tonalCenter, tones, tuningSystemId])
   const runtimeConfig = useMemo<DroneRuntimeConfig>(
     () => ({
       referenceA4Hz,
@@ -907,7 +926,6 @@ function App() {
             <SectionCard title="Tone mixer">
               <ToneMixer
                 tones={activeTones}
-                onToneEnabled={setToneEnabled}
                 onToneGain={setToneGain}
                 onTonePan={setTonePan}
               />
@@ -989,6 +1007,7 @@ function App() {
             <SectionCard title="Partials & timbre">
               <PartialEditor
                 partials={partials}
+                referenceFrequencyHz={partialReferenceFrequencyHz}
                 timbreBlend={timbreBlend}
                 onSetPartialEnabled={overtoneMidi.onPartialEnabledFromUi}
                 onSetPartialRatio={setPartialRatio}
