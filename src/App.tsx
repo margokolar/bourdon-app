@@ -675,6 +675,18 @@ function App() {
       }
     }
 
+    const armPlaybackSession = () => {
+      void primeMediaAnchor().then(() => {
+        keepPlaybackSessionAlive()
+      })
+    }
+
+    const armPlaybackSessionIfVisible = () => {
+      if (document.visibilityState === 'visible') {
+        armPlaybackSession()
+      }
+    }
+
     const onUserGesture = (event: Event) => {
       const target = event.target as HTMLElement | null
       const isTextEntryTrigger = Boolean(target?.closest('[data-text-entry-trigger="true"]'))
@@ -698,11 +710,18 @@ function App() {
       void primeMediaAnchor()
     }
 
+    armPlaybackSession()
     window.addEventListener('pointerdown', onUserGesture, { passive: true })
     window.addEventListener('keydown', onUserGesture)
+    window.addEventListener('focus', armPlaybackSession)
+    window.addEventListener('pageshow', armPlaybackSession)
+    document.addEventListener('visibilitychange', armPlaybackSessionIfVisible)
     return () => {
       window.removeEventListener('pointerdown', onUserGesture)
       window.removeEventListener('keydown', onUserGesture)
+      window.removeEventListener('focus', armPlaybackSession)
+      window.removeEventListener('pageshow', armPlaybackSession)
+      document.removeEventListener('visibilitychange', armPlaybackSessionIfVisible)
       if (anchorAudioElement) {
         anchorAudioElement.pause()
         anchorAudioElement.removeAttribute('src')
