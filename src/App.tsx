@@ -578,8 +578,9 @@ function App() {
       if (mediaKey === 'MediaPlay') {
         event.preventDefault()
         droneEngine.ensureRunning(latestRuntimeConfigRef.current)
-        void resumeMediaAnchor()
         setPlaying(true)
+        void resumeMediaAnchor()
+        void droneEngine.recoverIfStalled()
         return
       }
       if (mediaKey === 'MediaPause') {
@@ -799,9 +800,9 @@ function App() {
       // it, which is why the play action used to appear dead from a Bluetooth
       // controller while pause kept working.
       droneEngine.ensureRunning(latestRuntimeConfigRef.current)
-      void droneEngine.recoverIfStalled()
-      void resumeMediaAnchor()
       useDroneStore.getState().setPlaying(true)
+      void resumeMediaAnchor()
+      void droneEngine.recoverIfStalled()
       try {
         navigator.mediaSession.playbackState = 'playing'
       } catch {
@@ -812,9 +813,9 @@ function App() {
       const wasPlaying = useDroneStore.getState().playing
       if (!wasPlaying) {
         droneEngine.ensureRunning(latestRuntimeConfigRef.current)
-        void droneEngine.recoverIfStalled()
-        void resumeMediaAnchor()
         useDroneStore.getState().setPlaying(true)
+        void resumeMediaAnchor()
+        void droneEngine.recoverIfStalled()
         try {
           navigator.mediaSession.playbackState = 'playing'
         } catch {
