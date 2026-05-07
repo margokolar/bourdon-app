@@ -1159,7 +1159,7 @@ function App() {
                     <ChevronDown size={12} />
                   </button>
                   {songMenuOpen && (
-                    <div className="absolute right-0 z-40 mt-1 max-h-64 w-[calc(100vw-1.5rem)] max-w-[calc(100vw-1.5rem)] overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl md:w-96 md:max-w-96">
+                    <div className="absolute right-0 z-40 mt-1 max-h-64 w-72 max-w-[calc(100vw-3.5rem)] overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl md:w-96 md:max-w-96">
                       <button
                         type="button"
                         className="mb-2 block min-h-[38px] w-full rounded-md border border-fuchsia-300/40 bg-fuchsia-300/10 px-3 py-2 text-left text-sm text-fuchsia-100 transition hover:bg-fuchsia-300/20"
