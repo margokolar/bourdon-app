@@ -496,6 +496,16 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (!isIosStandalone()) {
+      return
+    }
+    droneEngine.setSessionKeepAlive(true)
+    return () => {
+      droneEngine.setSessionKeepAlive(false)
+    }
+  }, [])
+
+  useEffect(() => {
     const TURN_DOWN_KEYS = new Set([
       'ArrowDown',
       'NumpadSubtract',
