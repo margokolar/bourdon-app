@@ -809,9 +809,12 @@ function App() {
       }
     }
 
+    const activePresetName =
+      useDroneStore.getState().presets.find((preset) => preset.id === useDroneStore.getState().activePresetId)
+        ?.name ?? 'Preset'
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: 'Drone',
-      artist: 'Drone reference',
+      title: activePresetName,
+      artist: 'Drone',
       album: 'Drone App',
     })
 
@@ -886,7 +889,7 @@ function App() {
       setActionHandler('seekforward', null)
       setActionHandler('seekbackward', null)
     }
-  }, [pauseMediaAnchor, resumeMediaAnchor])
+  }, [activePresetId, pauseMediaAnchor, presets, resumeMediaAnchor])
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) {
