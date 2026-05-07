@@ -1,4 +1,6 @@
 import {
+  ArrowDown,
+  ArrowUp,
   AudioWaveform,
   BatteryMedium,
   ChevronDown,
@@ -167,6 +169,7 @@ function App() {
   const importSong = useDroneStore((state) => state.importSong)
   const loadSongFromLibrary = useDroneStore((state) => state.loadSongFromLibrary)
   const deleteSongFromLibrary = useDroneStore((state) => state.deleteSongFromLibrary)
+  const moveSongInLibrary = useDroneStore((state) => state.moveSongInLibrary)
   const saveCurrentSongToLibrary = useDroneStore((state) => state.saveCurrentSongToLibrary)
   const selectNextPreset = useDroneStore((state) => state.selectNextPreset)
   const selectPreviousPreset = useDroneStore((state) => state.selectPreviousPreset)
@@ -1174,6 +1177,9 @@ function App() {
                       </button>
                       {songLibrary.map((song) => {
                         const isActiveSong = song.name === songName
+                        const songIndex = songLibrary.findIndex((entry) => entry.id === song.id)
+                        const canMoveUp = songIndex > 0
+                        const canMoveDown = songIndex < songLibrary.length - 1
                         return (
                           <div
                             key={song.id}
@@ -1194,6 +1200,24 @@ function App() {
                               }}
                             >
                               <span className="block truncate">{song.name}</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="flex h-8 w-8 items-center justify-center rounded border border-white/20 bg-white/10 text-white/80 transition hover:bg-white/15 disabled:opacity-40"
+                              aria-label={`Move ${song.name} up`}
+                              disabled={!canMoveUp}
+                              onClick={() => moveSongInLibrary(song.id, 'up')}
+                            >
+                              <ArrowUp size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              className="flex h-8 w-8 items-center justify-center rounded border border-white/20 bg-white/10 text-white/80 transition hover:bg-white/15 disabled:opacity-40"
+                              aria-label={`Move ${song.name} down`}
+                              disabled={!canMoveDown}
+                              onClick={() => moveSongInLibrary(song.id, 'down')}
+                            >
+                              <ArrowDown size={14} />
                             </button>
                             <button
                               type="button"

@@ -72,6 +72,7 @@ type DroneState = {
   importSong: (songPresets: Preset[], activePresetId?: string, songName?: string) => void
   loadSongFromLibrary: (songId: string) => void
   deleteSongFromLibrary: (songId: string) => void
+  moveSongInLibrary: (songId: string, direction: 'up' | 'down') => void
   saveCurrentSongToLibrary: (songName?: string) => void
   selectNextPreset: () => void
   selectPreviousPreset: () => void
@@ -521,6 +522,24 @@ export const useDroneStore = create<DroneState>()(
             songLibrary: filtered,
             presets: copiedPresets,
             ...applyPresetState(active),
+          }
+        }),
+      moveSongInLibrary: (songId, direction) =>
+        set((state) => {
+          const index = state.songLibrary.findIndex((entry) => entry.id === songId)
+          if (index < 0) {
+            return state
+          }
+          const swapIndex = direction === 'up' ? index - 1 : index + 1
+          if (swapIndex < 0 || swapIndex >= state.songLibrary.length) {
+            return state
+          }
+          const nextLibrary = [...state.songLibrary]
+          const current = nextLibrary[index]
+          nextLibrary[index] = nextLibrary[swapIndex]
+          nextLibrary[swapIndex] = current
+          return {
+            songLibrary: nextLibrary,
           }
         }),
       saveCurrentSongToLibrary: (songName) =>
