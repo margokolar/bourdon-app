@@ -111,8 +111,6 @@ function App() {
   const [currentTime, setCurrentTime] = useState(() =>
     new Date().toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' }),
   )
-  const mediaAnchorPrimedRef = useRef(false)
-  const mediaAnchorAudioRef = useRef<HTMLAudioElement | null>(null)
   const upPressTimeoutRef = useRef<number | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
   const overtoneAnalyzeInputRef = useRef<HTMLInputElement | null>(null)
@@ -240,50 +238,6 @@ function App() {
 
   const canUndoOvertones = overtoneUndoRef.current.length > 0
   const canRedoOvertones = overtoneRedoRef.current.length > 0
-
-  const resumeMediaAnchor = useCallback(async () => {
-    const anchorAudio = mediaAnchorAudioRef.current
-    if (anchorAudio && anchorAudio.paused) {
-      try {
-        await anchorAudio.play()
-      } catch {
-        // Some browsers can still reject play while backgrounded.
-      }
-    }
-  }, [])
-
-  const pauseMediaAnchor = useCallback(() => {
-    const anchorAudio = mediaAnchorAudioRef.current
-    if (!anchorAudio) {
-      return
-    }
-    // Keep the silent anchor alive so iOS lock-screen / BT remotes keep routing
-    // media actions back to this app even after a longer pause.
-    // Do not mute or set volume=0: iOS may stop treating muted media as the
-    // active lock-screen owner. The WAV itself is digital silence.
-    anchorAudio.muted = false
-    anchorAudio.volume = 1
-    if (anchorAudio.paused) {
-      void anchorAudio.play().catch(() => {
-        // iOS can still reject in background; visibility/focus retries handle it.
-      })
-    }
-  }, [])
-
-  const nudgePlaybackAfterBackground = useCallback(() => {
-    void resumeMediaAnchor()
-  }, [resumeMediaAnchor])
-
-  const keepPlaybackSessionAlive = useCallback(() => {
-    if (!('mediaSession' in navigator)) {
-      return
-    }
-    try {
-      navigator.mediaSession.playbackState = useDroneStore.getState().playing ? 'playing' : 'paused'
-    } catch {
-      // Ignore browsers that reject the write.
-    }
-  }, [])
 
   const exportCurrentSong = useCallback(() => {
     const inputName = window.prompt('Song name', songName) ?? ''
@@ -433,11 +387,9 @@ function App() {
       // Must run synchronously inside the user-gesture call stack so Safari
       // honours AudioContext.resume().
       droneEngine.ensureRunning(latestRuntimeConfigRef.current)
-      void droneEngine.recoverIfStalled()
-      void resumeMediaAnchor()
     }
     togglePlaying()
-  }, [resumeMediaAnchor, togglePlaying])
+  }, [togglePlaying])
 
   const activeTones = useMemo(() => tones.filter((tone) => tone.enabled), [tones])
   const runtimeConfig = useMemo<DroneRuntimeConfig>(
@@ -465,7 +417,7 @@ function App() {
     setOvertoneHistoryVersion((value) => value + 1)
   }, [activePresetId])
 
-  useAudioEngine(runtimeConfig, playing, nudgePlaybackAfterBackground)
+  useAudioEngine(runtimeConfig, playing)
   useMetronome({
     enabled: metronomeEnabled,
     bpm: metronomeBpm,
@@ -535,7 +487,6 @@ function App() {
         if (!wasPlaying) {
           droneEngine.ensureRunning(latestRuntimeConfigRef.current)
         }
-        void resumeMediaAnchor()
         togglePlaying()
         return
       }
@@ -561,7 +512,6 @@ function App() {
         if (!wasPlaying) {
           droneEngine.ensureRunning(latestRuntimeConfigRef.current)
         }
-        void resumeMediaAnchor()
         togglePlaying()
         return
       }
@@ -571,7 +521,6 @@ function App() {
         if (!wasPlaying) {
           droneEngine.ensureRunning(latestRuntimeConfigRef.current)
         }
-        void resumeMediaAnchor()
         togglePlaying()
         return
       }
@@ -579,21 +528,10 @@ function App() {
         event.preventDefault()
         droneEngine.fastResume(latestRuntimeConfigRef.current)
         setPlaying(true)
-        void resumeMediaAnchor()
-        window.setTimeout(() => {
-          void droneEngine.recoverIfStalled()
-        }, 500)
         return
       }
       if (mediaKey === 'MediaPause') {
         event.preventDefault()
-        const wasPlaying = useDroneStore.getState().playing
-        if (!wasPlaying) {
-          droneEngine.fastResume(latestRuntimeConfigRef.current)
-          void resumeMediaAnchor()
-          setPlaying(true)
-          return
-        }
         setPlaying(false)
       }
     }
@@ -605,135 +543,7 @@ function App() {
       }
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [resumeMediaAnchor, selectNextPreset, selectPreviousPreset, setPlaying, togglePlaying])
-
-  useEffect(() => {
-    let anchorAudioElement: HTMLAudioElement | null = null
-    let anchorObjectUrl: string | null = null
-
-    const createSilentWavUrl = (): string => {
-      const sampleRate = 8000
-      const durationSeconds = 1
-      const numSamples = sampleRate * durationSeconds
-      const bytesPerSample = 2
-      const blockAlign = bytesPerSample
-      const byteRate = sampleRate * blockAlign
-      const dataSize = numSamples * bytesPerSample
-      const buffer = new ArrayBuffer(44 + dataSize)
-      const view = new DataView(buffer)
-      const writeString = (offset: number, str: string) => {
-        for (let i = 0; i < str.length; i += 1) {
-          view.setUint8(offset + i, str.charCodeAt(i))
-        }
-      }
-      writeString(0, 'RIFF')
-      view.setUint32(4, 36 + dataSize, true)
-      writeString(8, 'WAVE')
-      writeString(12, 'fmt ')
-      view.setUint32(16, 16, true)
-      view.setUint16(20, 1, true)
-      view.setUint16(22, 1, true)
-      view.setUint32(24, sampleRate, true)
-      view.setUint32(28, byteRate, true)
-      view.setUint16(32, blockAlign, true)
-      view.setUint16(34, 16, true)
-      writeString(36, 'data')
-      view.setUint32(40, dataSize, true)
-      const blob = new Blob([buffer], { type: 'audio/wav' })
-      return URL.createObjectURL(blob)
-    }
-
-    const primeMediaAnchor = async () => {
-      if (mediaAnchorPrimedRef.current) {
-        return
-      }
-      mediaAnchorPrimedRef.current = true
-      try {
-        anchorObjectUrl = createSilentWavUrl()
-        anchorAudioElement = new Audio(anchorObjectUrl)
-        anchorAudioElement.loop = true
-        anchorAudioElement.preload = 'auto'
-        anchorAudioElement.setAttribute('playsinline', '')
-        anchorAudioElement.setAttribute('webkit-playsinline', '')
-        // Keep this unmuted at full volume so iOS treats it as active media.
-        // The WAV data is silent, so it should remain inaudible.
-        anchorAudioElement.muted = false
-        anchorAudioElement.volume = 1
-        mediaAnchorAudioRef.current = anchorAudioElement
-        const restoreIfUnexpectedPause = () => {
-          if (!useDroneStore.getState().playing) {
-            return
-          }
-          void resumeMediaAnchor()
-          keepPlaybackSessionAlive()
-        }
-        anchorAudioElement.addEventListener('pause', restoreIfUnexpectedPause)
-        anchorAudioElement.addEventListener('ended', restoreIfUnexpectedPause)
-        await anchorAudioElement.play()
-      } catch {
-        mediaAnchorPrimedRef.current = false
-      }
-    }
-
-    const armPlaybackSession = () => {
-      void primeMediaAnchor().then(() => {
-        keepPlaybackSessionAlive()
-      })
-    }
-
-    const armPlaybackSessionIfVisible = () => {
-      if (document.visibilityState === 'visible') {
-        armPlaybackSession()
-      }
-    }
-
-    const onUserGesture = (event: Event) => {
-      const target = event.target as HTMLElement | null
-      const isTextEntryTrigger = Boolean(target?.closest('[data-text-entry-trigger="true"]'))
-      if (isTextEntryTrigger) {
-        return
-      }
-      const isTextEntryTarget =
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        target?.isContentEditable
-      if (isTextEntryTarget) {
-        return
-      }
-      if (event instanceof KeyboardEvent) {
-        const key = event.key || event.code
-        if (key.startsWith('Media')) {
-          return
-        }
-      }
-      void primeMediaAnchor()
-    }
-
-    armPlaybackSession()
-    window.addEventListener('pointerdown', onUserGesture, { passive: true })
-    window.addEventListener('keydown', onUserGesture)
-    window.addEventListener('focus', armPlaybackSession)
-    window.addEventListener('pageshow', armPlaybackSession)
-    document.addEventListener('visibilitychange', armPlaybackSessionIfVisible)
-    return () => {
-      window.removeEventListener('pointerdown', onUserGesture)
-      window.removeEventListener('keydown', onUserGesture)
-      window.removeEventListener('focus', armPlaybackSession)
-      window.removeEventListener('pageshow', armPlaybackSession)
-      document.removeEventListener('visibilitychange', armPlaybackSessionIfVisible)
-      if (anchorAudioElement) {
-        anchorAudioElement.pause()
-        anchorAudioElement.removeAttribute('src')
-        anchorAudioElement.load()
-      }
-      if (anchorObjectUrl) {
-        URL.revokeObjectURL(anchorObjectUrl)
-      }
-      mediaAnchorPrimedRef.current = false
-      mediaAnchorAudioRef.current = null
-    }
-  }, [keepPlaybackSessionAlive, resumeMediaAnchor])
+  }, [selectNextPreset, selectPreviousPreset, setPlaying, togglePlaying])
 
   useEffect(() => {
     if (!isIosStandalone()) {
@@ -758,183 +568,11 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!playing) {
-      return
-    }
-
-    const refreshPlaybackSession = () => {
-      droneEngine.ensureRunning(latestRuntimeConfigRef.current)
-      void droneEngine.kickContext()
-      void droneEngine.recoverIfStalled()
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = 'playing'
-      }
-      void resumeMediaAnchor()
-    }
-
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        refreshPlaybackSession()
-      }
-    }
-
-    window.addEventListener('pageshow', refreshPlaybackSession)
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => {
-      window.removeEventListener('pageshow', refreshPlaybackSession)
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-    }
-  }, [playing, resumeMediaAnchor])
-
-  useEffect(() => {
     const timerId = window.setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' }))
     }, 1000)
     return () => window.clearInterval(timerId)
   }, [])
-
-  useEffect(() => {
-    if (!('mediaSession' in navigator)) {
-      return
-    }
-
-    const setActionHandler = (
-      action: MediaSessionAction,
-      handler: MediaSessionActionHandler | null,
-    ) => {
-      try {
-        navigator.mediaSession.setActionHandler(action, handler)
-      } catch {
-        // iOS Safari can reject unsupported handlers; keep play/pause working.
-      }
-    }
-
-    const activePresetName =
-      useDroneStore.getState().presets.find((preset) => preset.id === useDroneStore.getState().activePresetId)
-        ?.name ?? 'Preset'
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: activePresetName,
-      artist: 'Drone',
-      album: 'Drone App',
-    })
-
-    setActionHandler('play', () => {
-      // iOS Safari only keeps the user-gesture window alive for the synchronous
-      // body of this handler. Any `await` before AudioContext.resume() loses
-      // it, which is why the play action used to appear dead from a Bluetooth
-      // controller while pause kept working.
-      droneEngine.fastResume(latestRuntimeConfigRef.current)
-      useDroneStore.getState().setPlaying(true)
-      void resumeMediaAnchor()
-      window.setTimeout(() => {
-        void droneEngine.recoverIfStalled()
-      }, 500)
-      try {
-        navigator.mediaSession.playbackState = 'playing'
-      } catch {
-        // Safari occasionally throws when called before metadata settles.
-      }
-    })
-    setActionHandler('pause', () => {
-      const wasPlaying = useDroneStore.getState().playing
-      if (!wasPlaying) {
-        droneEngine.fastResume(latestRuntimeConfigRef.current)
-        useDroneStore.getState().setPlaying(true)
-        void resumeMediaAnchor()
-        window.setTimeout(() => {
-          void droneEngine.recoverIfStalled()
-        }, 500)
-        try {
-          navigator.mediaSession.playbackState = 'playing'
-        } catch {
-          // Ignore; the next render will update playbackState anyway.
-        }
-        return
-      }
-      pauseMediaAnchor()
-      useDroneStore.getState().setPlaying(false)
-      try {
-        // Keep lock-screen ownership on Drone. Some iOS Bluetooth speakers emit
-        // "pause" instead of "play" while the OS still sees our silent anchor.
-        navigator.mediaSession.playbackState = 'playing'
-      } catch {
-        // Ignore; the next render will update playbackState anyway.
-      }
-    })
-    setActionHandler('stop', () => {
-      pauseMediaAnchor()
-      useDroneStore.getState().setPlaying(false)
-    })
-    setActionHandler('nexttrack', () => {
-      useDroneStore.getState().selectNextPreset()
-    })
-    setActionHandler('previoustrack', () => {
-      useDroneStore.getState().selectPreviousPreset()
-    })
-    setActionHandler('seekforward', () => {
-      const state = useDroneStore.getState()
-      state.setMasterGainDb(state.masterGainDb + 1)
-    })
-    setActionHandler('seekbackward', () => {
-      const state = useDroneStore.getState()
-      state.setMasterGainDb(state.masterGainDb - 1)
-    })
-
-    return () => {
-      setActionHandler('play', null)
-      setActionHandler('pause', null)
-      setActionHandler('stop', null)
-      setActionHandler('nexttrack', null)
-      setActionHandler('previoustrack', null)
-      setActionHandler('seekforward', null)
-      setActionHandler('seekbackward', null)
-    }
-  }, [activePresetId, pauseMediaAnchor, presets, resumeMediaAnchor])
-
-  useEffect(() => {
-    if (!('mediaSession' in navigator)) {
-      return
-    }
-    try {
-      // Keep Drone as the lock-screen media owner while the silent anchor is
-      // alive. Incoming "pause" commands are toggled back to play above.
-      const hasAnchor = mediaAnchorPrimedRef.current
-      navigator.mediaSession.playbackState = playing || hasAnchor ? 'playing' : 'paused'
-    } catch {
-      // Ignore browsers that reject the write.
-    }
-  }, [playing])
-
-  useEffect(() => {
-    if (!playing) {
-      return
-    }
-    const intervalId = window.setInterval(() => {
-      keepPlaybackSessionAlive()
-      void droneEngine.recoverIfStalled()
-      void resumeMediaAnchor()
-    }, 15000)
-    return () => window.clearInterval(intervalId)
-  }, [keepPlaybackSessionAlive, playing, resumeMediaAnchor])
-
-  useEffect(() => {
-    if (playing) {
-      void resumeMediaAnchor()
-      return
-    }
-    pauseMediaAnchor()
-  }, [pauseMediaAnchor, playing, resumeMediaAnchor])
-
-  useEffect(() => {
-    if (playing) {
-      return
-    }
-    const intervalId = window.setInterval(() => {
-      keepPlaybackSessionAlive()
-      pauseMediaAnchor()
-    }, 20000)
-    return () => window.clearInterval(intervalId)
-  }, [keepPlaybackSessionAlive, pauseMediaAnchor, playing])
 
   useEffect(() => {
     if (!songMenuOpen) {
