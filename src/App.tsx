@@ -1288,6 +1288,7 @@ function App() {
                   Drone v{APP_VERSION}
                 </div>
                 <p>Professional drone reference for tuning and intonation practice.</p>
+                <p className="mt-2 text-xs text-white/55">(c) Margo Kõlar</p>
               </div>
             </div>
           </aside>
