@@ -169,10 +169,7 @@ export function PartialEditor({
                   <input
                     type="checkbox"
                     checked={partial.enabled}
-                    onChange={(event) => {
-                      soloRestoreRef.current = null
-                      onSetPartialEnabled(partial.id, event.target.checked)
-                    }}
+                    onChange={(event) => onSetPartialEnabled(partial.id, event.target.checked)}
                     className="h-5 w-5 shrink-0 accent-fuchsia-300"
                   />
                   Active
