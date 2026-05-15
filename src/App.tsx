@@ -793,8 +793,13 @@ function App() {
         >
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
             <div className="sticky top-[68px] z-20 -mx-3 grid grid-cols-2 gap-2 overflow-visible bg-[#111019] px-3 pb-2 landscape:top-2 max-h-[500px]:top-2">
-              <article className="rounded-xl border border-fuchsia-300/45 bg-[#211a2d] p-3">
-                <div className="flex items-start justify-between gap-2">
+              <article className="relative rounded-xl border border-fuchsia-300/45 bg-[#211a2d]">
+                <button
+                  type="button"
+                  className="block min-h-full w-full rounded-xl p-3 pr-12 text-left transition hover:bg-fuchsia-300/10"
+                  onClick={() => setActiveTab('presets')}
+                  aria-label="Open presets"
+                >
                   <div className="min-w-0">
                     <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/75">
                       Preset
@@ -803,15 +808,15 @@ function App() {
                       {presets.find((preset) => preset.id === activePresetId)?.name ?? 'Preset'}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    className="button-safe flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-[#2a2238] text-white/80 transition hover:bg-[#352a48]"
-                    onClick={saveActivePreset}
-                    aria-label="Save current preset"
-                  >
-                    <Save size={15} />
-                  </button>
-                </div>
+                </button>
+                <button
+                  type="button"
+                  className="button-safe absolute right-3 top-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-[#2a2238] text-white/80 transition hover:bg-[#352a48]"
+                  onClick={saveActivePreset}
+                  aria-label="Save current preset"
+                >
+                  <Save size={15} />
+                </button>
               </article>
               <article className="min-w-0 overflow-visible rounded-xl border border-white/10 bg-[#1a1825] p-3">
                 <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/75">
