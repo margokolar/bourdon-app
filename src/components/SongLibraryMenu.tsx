@@ -1,5 +1,9 @@
 import { ArrowDown, ArrowUp, ChevronDown, Trash2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+const VIEWPORT_GUTTER_PX = 12
+const DROPDOWN_PANEL_CLASS =
+  'fixed z-[60] max-h-64 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl'
 
 type SongEntry = {
   id: string
@@ -14,7 +18,6 @@ type SongLibraryMenuProps = {
   onMoveSong: (songId: string, direction: 'up' | 'down') => void
   onDeleteSong: (songId: string) => void
   triggerClassName?: string
-  dropdownClassName?: string
 }
 
 export function SongLibraryMenu({
@@ -25,10 +28,36 @@ export function SongLibraryMenu({
   onMoveSong,
   onDeleteSong,
   triggerClassName,
-  dropdownClassName,
 }: SongLibraryMenuProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [dropdownTop, setDropdownTop] = useState(0)
   const menuRef = useRef<HTMLDivElement | null>(null)
+
+  const updateDropdownPosition = useCallback(() => {
+    const container = menuRef.current
+    if (!container) {
+      return
+    }
+    const trigger = container.querySelector('button')
+    if (!(trigger instanceof HTMLElement)) {
+      return
+    }
+    const rect = trigger.getBoundingClientRect()
+    setDropdownTop(rect.bottom + 4)
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!menuOpen) {
+      return
+    }
+    updateDropdownPosition()
+    window.addEventListener('resize', updateDropdownPosition)
+    window.addEventListener('scroll', updateDropdownPosition, true)
+    return () => {
+      window.removeEventListener('resize', updateDropdownPosition)
+      window.removeEventListener('scroll', updateDropdownPosition, true)
+    }
+  }, [menuOpen, updateDropdownPosition])
 
   useEffect(() => {
     if (!menuOpen) {
@@ -69,10 +98,12 @@ export function SongLibraryMenu({
       </button>
       {menuOpen && (
         <div
-          className={
-            dropdownClassName ??
-            'absolute left-0 right-0 z-40 mt-1 max-h-64 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl'
-          }
+          className={DROPDOWN_PANEL_CLASS}
+          style={{
+            top: dropdownTop,
+            left: VIEWPORT_GUTTER_PX,
+            right: VIEWPORT_GUTTER_PX,
+          }}
         >
           <button
             type="button"
