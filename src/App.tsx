@@ -1,6 +1,7 @@
 import {
   AudioWaveform,
   BatteryMedium,
+  Copy,
   Download,
   Info,
   Menu,
@@ -796,7 +797,7 @@ function App() {
               <article className="relative rounded-xl border border-fuchsia-300/45 bg-[#211a2d]">
                 <button
                   type="button"
-                  className="block min-h-full w-full rounded-xl p-3 pr-12 text-left transition hover:bg-fuchsia-300/10"
+                  className="block min-h-full w-full rounded-xl p-3 pr-20 text-left transition hover:bg-fuchsia-300/10"
                   onClick={() => setActiveTab('presets')}
                   aria-label="Open presets"
                 >
@@ -809,14 +810,24 @@ function App() {
                     </p>
                   </div>
                 </button>
-                <button
-                  type="button"
-                  className="button-safe absolute right-3 top-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-[#2a2238] text-white/80 transition hover:bg-[#352a48]"
-                  onClick={saveActivePreset}
-                  aria-label="Save current preset"
-                >
-                  <Save size={15} />
-                </button>
+                <div className="absolute right-2 top-2 flex gap-1">
+                  <button
+                    type="button"
+                    className="button-safe flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-[#2a2238] text-white/80 transition hover:bg-[#352a48]"
+                    onClick={saveActivePreset}
+                    aria-label="Save current preset"
+                  >
+                    <Save size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    className="button-safe flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-[#2a2238] text-white/80 transition hover:bg-[#352a48]"
+                    onClick={saveAsPreset}
+                    aria-label="Save as new preset"
+                  >
+                    <Copy size={15} />
+                  </button>
+                </div>
               </article>
               <article className="min-w-0 overflow-visible rounded-xl border border-white/10 bg-[#1a1825] p-3">
                 <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/75">
