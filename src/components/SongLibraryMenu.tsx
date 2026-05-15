@@ -2,8 +2,12 @@ import { ArrowDown, ArrowUp, ChevronDown, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 const VIEWPORT_GUTTER_PX = 12
-const DROPDOWN_PANEL_CLASS =
+const VIEWPORT_DROPDOWN_CLASS =
   'fixed z-[60] max-h-64 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl'
+const ANCHOR_DROPDOWN_CLASS =
+  'fixed z-[60] max-h-64 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl'
+
+type DropdownPlacement = 'viewport' | 'anchor'
 
 type SongEntry = {
   id: string
@@ -18,6 +22,7 @@ type SongLibraryMenuProps = {
   onMoveSong: (songId: string, direction: 'up' | 'down') => void
   onDeleteSong: (songId: string) => void
   triggerClassName?: string
+  dropdownPlacement?: DropdownPlacement
 }
 
 export function SongLibraryMenu({
@@ -28,10 +33,12 @@ export function SongLibraryMenu({
   onMoveSong,
   onDeleteSong,
   triggerClassName,
+  dropdownPlacement = 'viewport',
 }: SongLibraryMenuProps) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [dropdownTop, setDropdownTop] = useState(0)
+  const [dropdownStyle, setDropdownStyle] = useState<Record<string, number>>({})
   const menuRef = useRef<HTMLDivElement | null>(null)
+  const usesViewportDropdown = dropdownPlacement === 'viewport'
 
   const updateDropdownPosition = useCallback(() => {
     const container = menuRef.current
@@ -43,8 +50,24 @@ export function SongLibraryMenu({
       return
     }
     const rect = trigger.getBoundingClientRect()
-    setDropdownTop(rect.bottom + 4)
-  }, [])
+    if (dropdownPlacement === 'viewport') {
+      setDropdownStyle({
+        top: rect.bottom + 4,
+        left: VIEWPORT_GUTTER_PX,
+        right: VIEWPORT_GUTTER_PX,
+      })
+      return
+    }
+
+    const viewportWidth = window.innerWidth
+    const width = Math.min(288, viewportWidth - VIEWPORT_GUTTER_PX * 2)
+    const right = Math.max(VIEWPORT_GUTTER_PX, viewportWidth - rect.right)
+    setDropdownStyle({
+      top: rect.bottom,
+      right,
+      width,
+    })
+  }, [dropdownPlacement])
 
   useLayoutEffect(() => {
     if (!menuOpen) {
@@ -98,12 +121,8 @@ export function SongLibraryMenu({
       </button>
       {menuOpen && (
         <div
-          className={DROPDOWN_PANEL_CLASS}
-          style={{
-            top: dropdownTop,
-            left: VIEWPORT_GUTTER_PX,
-            right: VIEWPORT_GUTTER_PX,
-          }}
+          className={usesViewportDropdown ? VIEWPORT_DROPDOWN_CLASS : ANCHOR_DROPDOWN_CLASS}
+          style={dropdownStyle}
         >
           <button
             type="button"

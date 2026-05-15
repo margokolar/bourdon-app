@@ -16,7 +16,7 @@ export function SectionCard({ title, rightSlot, className, children }: SectionCa
         className,
       )}
     >
-      <header className="mb-4 flex items-start justify-between gap-3">
+      <header className="relative z-30 mb-4 flex items-start justify-between gap-3 overflow-visible">
         <h2 className="text-safe text-sm font-semibold uppercase tracking-[0.16em] text-white/75">
           {title}
         </h2>

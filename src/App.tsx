@@ -49,7 +49,7 @@ const TABS: { id: TabId; label: string }[] = [
 const APP_VERSION = '1.1'
 const MAX_OVERTONE_HISTORY = 60
 const SONG_MENU_TRIGGER_CLASS =
-  'flex min-h-[40px] w-full min-w-0 items-center justify-between gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/90 transition hover:bg-white/10'
+  'flex min-h-[40px] w-full min-w-0 items-center justify-between gap-2 rounded-md border border-white/10 bg-[#252332] px-3 py-2 text-sm text-white/90 transition hover:bg-[#2f2d3c]'
 function isIosStandalone(): boolean {
   const nav = navigator as Navigator & { standalone?: boolean }
   const isIosDevice =
@@ -792,8 +792,8 @@ function App() {
           }`}
         >
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
-            <div className="sticky top-[68px] z-20 grid grid-cols-2 gap-2 overflow-visible landscape:top-2 max-h-[500px]:top-2">
-              <article className="rounded-xl border border-fuchsia-300/45 bg-fuchsia-300/14 p-3">
+            <div className="sticky top-[68px] z-20 -mx-3 grid grid-cols-2 gap-2 overflow-visible bg-[#111019] px-3 pb-2 landscape:top-2 max-h-[500px]:top-2">
+              <article className="rounded-xl border border-fuchsia-300/45 bg-[#211a2d] p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/75">
@@ -805,7 +805,7 @@ function App() {
                   </div>
                   <button
                     type="button"
-                    className="button-safe flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
+                    className="button-safe flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-[#2a2238] text-white/80 transition hover:bg-[#352a48]"
                     onClick={saveActivePreset}
                     aria-label="Save current preset"
                   >
@@ -813,7 +813,7 @@ function App() {
                   </button>
                 </div>
               </article>
-              <article className="min-w-0 overflow-visible rounded-xl border border-white/10 bg-white/5 p-3">
+              <article className="min-w-0 overflow-visible rounded-xl border border-white/10 bg-[#1a1825] p-3">
                 <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/75">
                   Song
                 </h2>
@@ -977,6 +977,7 @@ function App() {
                   onMoveSong={moveSongInLibrary}
                   onDeleteSong={deleteSongFromLibrary}
                   triggerClassName={`${SONG_MENU_TRIGGER_CLASS} w-auto max-w-full px-4`}
+                  dropdownPlacement="anchor"
                 />
               }
             >
