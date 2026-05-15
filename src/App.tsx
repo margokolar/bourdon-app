@@ -810,76 +810,15 @@ function App() {
           <div className="ml-auto text-4xl font-extrabold leading-none text-fuchsia-100">{currentTime}</div>
         </header>
 
-        <nav
-          className="sticky top-[76px] z-30 mb-3 overflow-x-auto rounded-xl border border-white/10 bg-[#111019]/90 p-1 backdrop-blur-sm landscape:top-2 max-h-[500px]:top-2"
-          aria-label="App sections"
-        >
-          <div className="flex min-w-max items-center gap-1">
-            {TABS.map(({ id, label }) => (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === id}
-                aria-controls={`panel-${id}`}
-                id={`tab-${id}`}
-                className={`button-safe shrink-0 rounded-lg border px-3 py-2 text-center text-sm font-medium transition ${activeTab === id ? 'border-white/25 bg-white/15 text-white' : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10'}`}
-                onClick={() => setActiveTab(id)}
-              >
-                {label}
-              </button>
-            ))}
-            {activeTab === 'overtones' && (
-              <div className="ml-2 hidden items-center gap-1.5 landscape:flex max-h-[500px]:flex">
-                <button
-                  type="button"
-                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
-                  onClick={saveActivePreset}
-                  aria-label="Save current preset"
-                >
-                  <Save size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
-                  onClick={resetOvertoneBalance}
-                  aria-label="Reset overtone balance"
-                  disabled={!canResetOvertones}
-                >
-                  <RotateCcw size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
-                  onClick={undoOvertoneChange}
-                  aria-label="Undo overtone change"
-                  disabled={!canUndoOvertones}
-                >
-                  <Undo2 size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
-                  onClick={redoOvertoneChange}
-                  aria-label="Redo overtone change"
-                  disabled={!canRedoOvertones}
-                >
-                  <Redo2 size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-        </nav>
-
         <main
           className={`landscape:pb-2 max-h-[500px]:pb-2 ${
-            activeTab === 'metronome' ? 'pb-12' : 'pb-24'
+            activeTab === 'blank' ? 'pb-20' : activeTab === 'metronome' ? 'pb-32' : 'pb-44'
           }`}
         >
           <div className="space-y-4" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone" hidden={activeTab !== 'tone'}>
             <SectionCard
               title="Current preset"
-              className="relative sticky top-[128px] z-20 border-fuchsia-300/45 bg-fuchsia-300/14 p-1.5 pr-11 [&>header]:mb-0.5 [&>header>h2]:text-[11px] landscape:top-[48px] max-h-[500px]:top-[48px]"
+              className="relative sticky top-[68px] z-20 border-fuchsia-300/45 bg-fuchsia-300/14 p-1.5 pr-11 [&>header]:mb-0.5 [&>header>h2]:text-[11px] landscape:top-2 max-h-[500px]:top-2"
             >
               <div className="min-w-0 truncate text-sm font-semibold text-white/90">
                 {presets.find((preset) => preset.id === activePresetId)?.name ?? 'Preset'}
@@ -1162,41 +1101,103 @@ function App() {
           <div className="space-y-4" role="tabpanel" id="panel-blank" aria-labelledby="tab-blank" hidden={activeTab !== 'blank'} />
         </main>
       </div>
-      {activeTab !== 'blank' && (
-        <div className="fixed bottom-2 left-0 right-0 z-30 px-3">
-        <div className="mx-auto w-full max-w-md rounded-xl border border-white/10 bg-[#111019] p-2 backdrop-blur-sm landscape:max-w-none max-h-[500px]:max-w-none md:max-w-5xl">
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
-              onClick={selectPreviousPreset}
-              aria-label="Previous preset"
-            >
-              <StepBack size={22} />
-            </button>
-            <button
-              type="button"
-              className="button-safe flex min-h-[44px] min-w-0 flex-nowrap items-center justify-center gap-2 overflow-hidden rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
-              onClick={handleTogglePlay}
-              aria-label={playing ? 'Pause' : 'Play'}
-            >
-              {(playing && <Pause size={22} />) || <Play size={22} />}
-              <span className="inline-block w-14 text-center whitespace-nowrap">
-                {playing ? 'Pause' : 'Play'}
-              </span>
-            </button>
-            <button
-              type="button"
-              className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
-              onClick={selectNextPreset}
-              aria-label="Next preset"
-            >
-              <StepForward size={22} />
-            </button>
-          </div>
+      <div className="fixed bottom-2 left-0 right-0 z-30 px-3">
+        <div className="mx-auto w-full max-w-md space-y-2 landscape:max-w-none max-h-[500px]:max-w-none md:max-w-5xl">
+          <nav
+            className="overflow-x-auto rounded-xl border border-white/10 bg-[#111019]/95 p-1 backdrop-blur-sm"
+            aria-label="App sections"
+          >
+            <div className="flex min-w-max items-center gap-1">
+              {TABS.map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === id}
+                  aria-controls={`panel-${id}`}
+                  id={`tab-${id}`}
+                  className={`button-safe shrink-0 rounded-lg border px-3 py-2 text-center text-sm font-medium transition ${activeTab === id ? 'border-white/25 bg-white/15 text-white' : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10'}`}
+                  onClick={() => setActiveTab(id)}
+                >
+                  {label}
+                </button>
+              ))}
+              {activeTab === 'overtones' && (
+                <div className="ml-2 hidden items-center gap-1.5 landscape:flex max-h-[500px]:flex">
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10"
+                    onClick={saveActivePreset}
+                    aria-label="Save current preset"
+                  >
+                    <Save size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                    onClick={resetOvertoneBalance}
+                    aria-label="Reset overtone balance"
+                    disabled={!canResetOvertones}
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                    onClick={undoOvertoneChange}
+                    aria-label="Undo overtone change"
+                    disabled={!canUndoOvertones}
+                  >
+                    <Undo2 size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="button-safe flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/10 disabled:opacity-40"
+                    onClick={redoOvertoneChange}
+                    aria-label="Redo overtone change"
+                    disabled={!canRedoOvertones}
+                  >
+                    <Redo2 size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </nav>
+          {activeTab !== 'blank' && (
+            <div className="rounded-xl border border-white/10 bg-[#111019]/95 p-2 backdrop-blur-sm">
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+                  onClick={selectPreviousPreset}
+                  aria-label="Previous preset"
+                >
+                  <StepBack size={22} />
+                </button>
+                <button
+                  type="button"
+                  className="button-safe flex min-h-[44px] min-w-0 flex-nowrap items-center justify-center gap-2 overflow-hidden rounded-xl border border-fuchsia-300/60 bg-fuchsia-400/15 px-2 py-3 text-center font-semibold text-white transition hover:bg-fuchsia-300/25"
+                  onClick={handleTogglePlay}
+                  aria-label={playing ? 'Pause' : 'Play'}
+                >
+                  {(playing && <Pause size={22} />) || <Play size={22} />}
+                  <span className="inline-block w-14 text-center whitespace-nowrap">
+                    {playing ? 'Pause' : 'Play'}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="button-safe flex min-h-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-3 text-white transition hover:bg-white/10"
+                  onClick={selectNextPreset}
+                  aria-label="Next preset"
+                >
+                  <StepForward size={22} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-        </div>
-      )}
+      </div>
       {(menuOpen) && (
         <>
           <button
