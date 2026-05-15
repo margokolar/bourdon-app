@@ -5,7 +5,7 @@ const VIEWPORT_GUTTER_PX = 12
 const VIEWPORT_DROPDOWN_CLASS =
   'fixed z-[60] overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl'
 const ANCHOR_DROPDOWN_CLASS =
-  'fixed z-[60] max-h-64 overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl'
+  'fixed z-[60] overflow-y-auto rounded-lg border border-white/10 bg-[#1a1825] p-2 shadow-xl'
 
 type DropdownPlacement = 'viewport' | 'anchor'
 
@@ -63,12 +63,15 @@ export function SongLibraryMenu({
     }
 
     const viewportWidth = window.innerWidth
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight
     const width = Math.min(288, viewportWidth - VIEWPORT_GUTTER_PX * 2)
     const right = Math.max(VIEWPORT_GUTTER_PX, viewportWidth - rect.right)
+    const top = rect.bottom
     setDropdownStyle({
-      top: rect.bottom,
+      top,
       right,
       width,
+      maxHeight: Math.max(120, viewportHeight - top - VIEWPORT_GUTTER_PX),
     })
   }, [dropdownPlacement])
 
