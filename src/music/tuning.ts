@@ -116,6 +116,86 @@ function frequencyFromMidi(midi: number, a4Hz: number): number {
   return a4Hz * 2 ** ((midi - 69) / 12);
 }
 
+function getJustRatio(noteClass: NoteClass, center: TonalCenter): number {
+  const semitoneDistance = semitoneDistanceFromCenter(noteClass, center);
+  return (
+    JUST_RATIO_BY_SEMITONE_FROM_CENTER[semitoneDistance] ??
+    normalizeToSingleOctave(2 ** (semitoneDistance / 12))
+  );
+}
+
+function getPythagoreanRatio(noteClass: NoteClass, center: TonalCenter): number {
+  const semitoneDistance = semitoneDistanceFromCenter(noteClass, center);
+  return (
+    PYTHAGOREAN_RATIO_BY_SEMITONE_FROM_CENTER[semitoneDistance] ??
+    normalizeToSingleOctave(2 ** (semitoneDistance / 12))
+  );
+}
+
+function getBohlenPierceRatio(noteClass: NoteClass, center: TonalCenter): number {
+  const semitoneDistance = semitoneDistanceFromCenter(noteClass, center);
+  const bpStep = Math.round((semitoneDistance * 13) / 12);
+  return 3 ** (bpStep / 13);
+}
+
+function getTonalCenterFrequency(
+  center: TonalCenter,
+  a4Hz: number,
+  baseOctave: number
+): number {
+  const centerMidi = noteClassToMidiInReferenceOctave(center, baseOctave);
+  return frequencyFromMidi(centerMidi, a4Hz);
+}
+
+function getNaturalFrequencyFromParts(
+  noteClass: NoteClass,
+  octaveOffset: number,
+  center: TonalCenter,
+  a4Hz: number,
+  baseOctave: number
+): number {
+  const centerFrequency = getTonalCenterFrequency(center, a4Hz, baseOctave);
+  return centerFrequency * getJustRatio(noteClass, center) * 2 ** octaveOffset;
+}
+
+function getPythagoreanFrequencyFromParts(
+  noteClass: NoteClass,
+  octaveOffset: number,
+  center: TonalCenter,
+  a4Hz: number,
+  baseOctave: number
+): number {
+  const centerFrequency = getTonalCenterFrequency(center, a4Hz, baseOctave);
+  return centerFrequency * getPythagoreanRatio(noteClass, center) * 2 ** octaveOffset;
+}
+
+function getBohlenPierceFrequencyFromParts(
+  noteClass: NoteClass,
+  octaveOffset: number,
+  center: TonalCenter,
+  a4Hz: number,
+  baseOctave: number
+): number {
+  const centerFrequency = getTonalCenterFrequency(center, a4Hz, baseOctave);
+  return centerFrequency * getBohlenPierceRatio(noteClass, center) * 3 ** octaveOffset;
+}
+
+function getA4ScaleFactor(
+  tuningSystemId: Exclude<TuningSystemId, "equal">,
+  center: TonalCenter,
+  a4Hz: number,
+  baseOctave: number
+): number {
+  const a4OctaveOffset = 4 - Math.min(MAX_BASE_OCTAVE, Math.max(MIN_BASE_OCTAVE, baseOctave));
+  const rawA4 =
+    tuningSystemId === "pythagorean"
+      ? getPythagoreanFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave)
+      : tuningSystemId === "bohlen-pierce"
+        ? getBohlenPierceFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave)
+        : getNaturalFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave);
+  return a4Hz / rawA4;
+}
+
 export function getEqualTemperamentFrequency(
   noteId: NoteId,
   a4Hz: number,
@@ -131,14 +211,10 @@ export function getNaturalFrequency(
   baseOctave: number
 ): number {
   const { noteClass, octaveOffset } = splitNoteId(noteId);
-  const centerMidi = noteClassToMidiInReferenceOctave(center, baseOctave);
-  const centerFrequency = frequencyFromMidi(centerMidi, a4Hz);
-  const semitoneDistance = semitoneDistanceFromCenter(noteClass, center);
-  const relativeRatio =
-    JUST_RATIO_BY_SEMITONE_FROM_CENTER[semitoneDistance] ??
-    normalizeToSingleOctave(2 ** (semitoneDistance / 12));
-  const octaveRatio = 2 ** octaveOffset;
-  return centerFrequency * relativeRatio * octaveRatio;
+  return (
+    getNaturalFrequencyFromParts(noteClass, octaveOffset, center, a4Hz, baseOctave) *
+    getA4ScaleFactor("just", center, a4Hz, baseOctave)
+  );
 }
 
 export function getPythagoreanFrequency(
@@ -148,14 +224,10 @@ export function getPythagoreanFrequency(
   baseOctave: number
 ): number {
   const { noteClass, octaveOffset } = splitNoteId(noteId);
-  const centerMidi = noteClassToMidiInReferenceOctave(center, baseOctave);
-  const centerFrequency = frequencyFromMidi(centerMidi, a4Hz);
-  const semitoneDistance = semitoneDistanceFromCenter(noteClass, center);
-  const relativeRatio =
-    PYTHAGOREAN_RATIO_BY_SEMITONE_FROM_CENTER[semitoneDistance] ??
-    normalizeToSingleOctave(2 ** (semitoneDistance / 12));
-  const octaveRatio = 2 ** octaveOffset;
-  return centerFrequency * relativeRatio * octaveRatio;
+  return (
+    getPythagoreanFrequencyFromParts(noteClass, octaveOffset, center, a4Hz, baseOctave) *
+    getA4ScaleFactor("pythagorean", center, a4Hz, baseOctave)
+  );
 }
 
 export function getBohlenPierceFrequency(
@@ -165,15 +237,10 @@ export function getBohlenPierceFrequency(
   baseOctave: number
 ): number {
   const { noteClass, octaveOffset } = splitNoteId(noteId);
-  const centerMidi = noteClassToMidiInReferenceOctave(center, baseOctave);
-  const centerFrequency = frequencyFromMidi(centerMidi, a4Hz);
-  const semitoneDistance = semitoneDistanceFromCenter(noteClass, center);
-
-  // Map 12-semitone UI steps onto 13 equal steps of the Bohlen-Pierce tritave.
-  const bpStep = Math.round((semitoneDistance * 13) / 12);
-  const relativeRatio = 3 ** (bpStep / 13);
-  const tritaveRatio = 3 ** octaveOffset;
-  return centerFrequency * relativeRatio * tritaveRatio;
+  return (
+    getBohlenPierceFrequencyFromParts(noteClass, octaveOffset, center, a4Hz, baseOctave) *
+    getA4ScaleFactor("bohlen-pierce", center, a4Hz, baseOctave)
+  );
 }
 
 export function getFrequency(
