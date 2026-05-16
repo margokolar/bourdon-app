@@ -11,6 +11,7 @@ export const TUNING_SYSTEMS = [
   { id: "equal", label: "Equal" },
   { id: "just", label: "Natural" },
   { id: "pythagorean", label: "Pythagorean" },
+  { id: "meantone-sixth", label: "Meantone 1/6" },
   { id: "bohlen-pierce", label: "Bohlen-Pierce" },
 ] as const;
 
@@ -68,6 +69,24 @@ const PYTHAGOREAN_RATIO_BY_SEMITONE_FROM_CENTER: Record<number, number> = {
   10: 16 / 9,
   11: 243 / 128,
 };
+
+const FIFTH_STEPS_BY_SEMITONE_FROM_CENTER: Record<number, number> = {
+  0: 0,
+  1: -5,
+  2: 2,
+  3: -3,
+  4: 4,
+  5: -1,
+  6: 6,
+  7: 1,
+  8: -4,
+  9: 3,
+  10: -2,
+  11: 5,
+};
+
+const SYNTONIC_COMMA = 81 / 80;
+const MEANTONE_SIXTH_COMMA_FIFTH = (3 / 2) / SYNTONIC_COMMA ** (1 / 6);
 
 function semitoneDistanceFromCenter(
   noteClass: NoteClass,
@@ -140,6 +159,12 @@ function getPythagoreanRatio(noteClass: NoteClass, center: TonalCenter): number 
   );
 }
 
+function getMeantoneSixthRatio(noteClass: NoteClass, center: TonalCenter): number {
+  const semitoneDistance = semitoneDistanceFromCenter(noteClass, center);
+  const fifthSteps = FIFTH_STEPS_BY_SEMITONE_FROM_CENTER[semitoneDistance] ?? 0;
+  return normalizeToSingleOctave(MEANTONE_SIXTH_COMMA_FIFTH ** fifthSteps);
+}
+
 function getBohlenPierceRatio(noteClass: NoteClass, center: TonalCenter): number {
   const semitoneDistance = semitoneDistanceFromCenter(noteClass, center);
   const bpStep = Math.round((semitoneDistance * 13) / 12);
@@ -177,6 +202,17 @@ function getPythagoreanFrequencyFromParts(
   return centerFrequency * getPythagoreanRatio(noteClass, center) * 2 ** octaveOffset;
 }
 
+function getMeantoneSixthFrequencyFromParts(
+  noteClass: NoteClass,
+  octaveOffset: number,
+  center: TonalCenter,
+  a4Hz: number,
+  baseOctave: number
+): number {
+  const centerFrequency = getTonalCenterFrequency(center, a4Hz, baseOctave);
+  return centerFrequency * getMeantoneSixthRatio(noteClass, center) * 2 ** octaveOffset;
+}
+
 function getBohlenPierceFrequencyFromParts(
   noteClass: NoteClass,
   octaveOffset: number,
@@ -195,12 +231,16 @@ function getA4ScaleFactor(
   baseOctave: number
 ): number {
   const a4OctaveOffset = 4 - Math.min(MAX_BASE_OCTAVE, Math.max(MIN_BASE_OCTAVE, baseOctave));
-  const rawA4 =
-    tuningSystemId === "pythagorean"
-      ? getPythagoreanFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave)
-      : tuningSystemId === "bohlen-pierce"
-        ? getBohlenPierceFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave)
-        : getNaturalFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave);
+  let rawA4 = getNaturalFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave);
+  if (tuningSystemId === "pythagorean") {
+    rawA4 = getPythagoreanFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave);
+  }
+  if (tuningSystemId === "meantone-sixth") {
+    rawA4 = getMeantoneSixthFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave);
+  }
+  if (tuningSystemId === "bohlen-pierce") {
+    rawA4 = getBohlenPierceFrequencyFromParts("a", a4OctaveOffset, center, a4Hz, baseOctave);
+  }
   return a4Hz / rawA4;
 }
 
@@ -244,6 +284,22 @@ export function getPythagoreanFrequency(
   );
 }
 
+export function getMeantoneSixthFrequency(
+  noteId: NoteId,
+  center: TonalCenter,
+  a4Hz: number,
+  baseOctave: number
+): number {
+  const { noteClass, octaveOffset } = splitNoteId(noteId);
+  const tunedFrequency =
+    getMeantoneSixthFrequencyFromParts(noteClass, octaveOffset, center, a4Hz, baseOctave) *
+    getA4ScaleFactor("meantone-sixth", center, a4Hz, baseOctave);
+  return normalizeFrequencyNearReference(
+    tunedFrequency,
+    getEqualTemperamentFrequency(noteId, a4Hz, baseOctave)
+  );
+}
+
 export function getBohlenPierceFrequency(
   noteId: NoteId,
   center: TonalCenter,
@@ -272,6 +328,9 @@ export function getFrequency(
   }
   if (tuningSystemId === "pythagorean") {
     return getPythagoreanFrequency(noteId, tonalCenter, a4Hz, baseOctave);
+  }
+  if (tuningSystemId === "meantone-sixth") {
+    return getMeantoneSixthFrequency(noteId, tonalCenter, a4Hz, baseOctave);
   }
   if (tuningSystemId === "bohlen-pierce") {
     return getBohlenPierceFrequency(noteId, tonalCenter, a4Hz, baseOctave);
