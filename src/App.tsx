@@ -185,13 +185,40 @@ function App() {
   const canRedoOvertones = overtoneRedoRef.current.length > 0
 
   const exportCurrentSong = useCallback(() => {
-    const inputName = window.prompt('Song name', songName) ?? ''
+    const inputName = window.prompt('Song library name', songName) ?? ''
     const resolvedName = inputName.trim() || songName || 'My Song'
     const activePreset = presets.find((preset) => preset.id === activePresetId)
+    const currentSongSnapshot = {
+      presets: presets.map((preset) => ({ ...preset })),
+      activePresetId,
+    }
+    const currentSongIndex = songLibrary.findIndex((entry) => entry.name === songName)
+    const exportedSongLibrary =
+      currentSongIndex >= 0
+        ? songLibrary.map((entry, index) =>
+            index === currentSongIndex
+              ? {
+                  ...entry,
+                  name: resolvedName,
+                  ...currentSongSnapshot,
+                }
+              : entry,
+          )
+        : [
+            ...songLibrary,
+            {
+              id: `song-export-${Date.now()}`,
+              name: resolvedName,
+              ...currentSongSnapshot,
+            },
+          ]
     const payload = {
-      kind: 'bourdon-song',
-      version: 1,
+      kind: 'bourdon-song-library',
+      version: 2,
       name: resolvedName,
+      activeSongName: resolvedName,
+      songCount: exportedSongLibrary.length,
+      songLibrary: exportedSongLibrary,
       activePresetId,
       activePresetName: activePreset?.name ?? null,
       presetCount: presets.length,
@@ -202,19 +229,19 @@ function App() {
       resolvedName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '') || 'song'
+        .replace(/^-+|-+$/g, '') || 'song-library'
     const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], {
       type: 'application/json',
     })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `${safeName}.song.json`
+    link.download = `${safeName}.song-library.json`
     document.body.appendChild(link)
     link.click()
     link.remove()
     URL.revokeObjectURL(url)
-  }, [activePresetId, presets, songName])
+  }, [activePresetId, presets, songLibrary, songName])
 
   const importSongs = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -231,6 +258,23 @@ function App() {
             presets?: Preset[]
             activePresetId?: string
             name?: string
+            songLibrary?: Array<{
+              name?: string
+              presets?: Preset[]
+              activePresetId?: string
+            }>
+          }
+          if (Array.isArray(parsed.songLibrary) && parsed.songLibrary.length > 0) {
+            let importedSongsFromLibrary = 0
+            for (const song of parsed.songLibrary) {
+              if (!Array.isArray(song.presets) || song.presets.length === 0) {
+                continue
+              }
+              importSong(song.presets, song.activePresetId, song.name)
+              importedSongsFromLibrary += 1
+            }
+            importedCount += importedSongsFromLibrary
+            continue
           }
           if (!Array.isArray(parsed.presets) || parsed.presets.length === 0) {
             continue
@@ -1102,7 +1146,7 @@ function App() {
                 }}
               >
                 <Download size={20} />
-                Import song
+                Import song library
               </button>
               <button
                 type="button"
@@ -1113,7 +1157,7 @@ function App() {
                 }}
               >
                 <Upload size={20} />
-                Export song
+                Export song library
               </button>
               <button
                 type="button"
