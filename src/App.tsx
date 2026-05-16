@@ -227,7 +227,8 @@ function App() {
 
   const exportSongLibrary = useCallback(() => {
     const inputName = window.prompt('Song library name', songName) ?? ''
-    const resolvedName = inputName.trim() || songName || 'My Song'
+    const libraryName = inputName.trim() || songName || 'My Song'
+    const currentSongName = songName.trim() || 'Song 1'
     const activePreset = presets.find((preset) => preset.id === activePresetId)
     const currentSongSnapshot = {
       presets: presets.map((preset) => ({ ...preset })),
@@ -240,7 +241,7 @@ function App() {
             index === currentSongIndex
               ? {
                   ...entry,
-                  name: resolvedName,
+                  name: currentSongName,
                   ...currentSongSnapshot,
                 }
               : entry,
@@ -249,15 +250,15 @@ function App() {
             ...songLibrary,
             {
               id: `song-export-${Date.now()}`,
-              name: resolvedName,
+              name: currentSongName,
               ...currentSongSnapshot,
             },
           ]
     const payload = {
       kind: 'bourdon-song-library',
       version: 2,
-      name: resolvedName,
-      activeSongName: resolvedName,
+      name: libraryName,
+      activeSongName: currentSongName,
       songCount: exportedSongLibrary.length,
       songLibrary: exportedSongLibrary,
       activePresetId,
@@ -266,7 +267,7 @@ function App() {
       presets,
       exportedAt: new Date().toISOString(),
     }
-    downloadJson(payload, `${makeSafeFileName(resolvedName, 'song-library')}.song-library.json`)
+    downloadJson(payload, `${makeSafeFileName(libraryName, 'song-library')}.song-library.json`)
   }, [activePresetId, downloadJson, makeSafeFileName, presets, songLibrary, songName])
 
   const importSongs = useCallback(
